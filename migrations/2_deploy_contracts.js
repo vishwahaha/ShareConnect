@@ -1,5 +1,7 @@
-var SimpleStorage = artifacts.require("./SimpleStorage.sol");
+var UserStorage = artifacts.require("./UserStorage.sol");
+var FileShare = artifacts.require("./FileShare.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SimpleStorage);
+  deployer.deploy(UserStorage);
+  deployer.deploy(FileShare);
 };
