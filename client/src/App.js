@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import getWeb3 from "./utils/getWeb3";
+import {
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import "./App.css";
+import SignUp from "./components/SignUp";
+import Dashboard from "./components/Dashboard";
+import Interface from "./components/Interface";
 
 class App extends Component {
   state = { web3: null, accounts: null, contract: null };
@@ -36,7 +43,6 @@ class App extends Component {
 
   runExample = async () => {
     const { accounts, contract } = this.state;
-
   };
 
   render() {
@@ -44,9 +50,17 @@ class App extends Component {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     return (
-      <div className="App">
-        <h1>YO</h1>
-      </div>
+      <Routes>
+        <Route exact path="/" element={<SignUp />}>
+          
+        </Route>
+        <Route exact path="/dashboard" element={<Dashboard />}>
+          
+        </Route>
+        <Route exact path="/channel" element={<Interface />}>
+          
+        </Route>
+      </Routes>
     );
   }
 }
