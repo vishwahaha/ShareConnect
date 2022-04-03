@@ -22,6 +22,10 @@ contract UserStorage {
     return userData[msg.sender];
   }
 
+  function getUsers() public view returns(address[] memory) {
+    return userAddresses;
+  }
+
   function _makeUser(
     address _userAddress,
     string memory _name,
