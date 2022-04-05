@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.21 <8.13.0;
+pragma solidity >=0.4.21 <=0.8.13;
 
 import './UserAccount.sol';
 
@@ -8,6 +8,11 @@ contract UserStorage {
   address[] userAddresses;
   //mapping from user's address to deployed address of a UserAccount contract.
   mapping(address => address) public userData;
+
+  modifier isRegistered() {
+    require(userData[msg.sender] != address(0));
+    _;
+  }
 
   function createUser( 
     string memory _name,
@@ -22,7 +27,7 @@ contract UserStorage {
     return userData[msg.sender];
   }
 
-  function getUsers() public view returns(address[] memory) {
+  function getUsers() public view isRegistered returns(address[] memory) {
     return userAddresses;
   }
 
