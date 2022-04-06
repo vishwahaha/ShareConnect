@@ -41,7 +41,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_userA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_userB\",\"type\":\"address\"}],\"name\":\"createChannel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_userA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_userB\",\"type\":\"address\"}],\"name\":\"getChannel\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/FileShare.sol\":\"FileShare\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/FileShare.sol\":{\"keccak256\":\"0x9f61994349259cc0164d5f0baab19c221cd636f4556004fd04a6d3b412d878f4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bfa436f1034f301d8efb1e646f667890a93301316d6e29dd5ecc5148c3ceec95\",\"dweb:/ipfs/QmTf2Bv9tx4u5nQQdRw2kRwKHqoPJxvw6uHjyi5LFuSxtc\"]},\"project:/contracts/ShareChannel.sol\":{\"keccak256\":\"0xfe68dd932037dbfdcc7f2b9f89416bfcfecfe56eefe1d204290c2db7c923143c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fa753e7953f73898497874f52d2243cf1807c2775278b195e0d96af9d7c70a9e\",\"dweb:/ipfs/QmcKGmmX8K3ECneVAF8fMVeCrzrpeDJr3WqyMtXMZv8YZP\"]}},\"version\":1}",
@@ -6008,10 +6009,23 @@
       "links": {},
       "address": "0x78D02a005215E4C05D4caE2a8582CBC73766A035",
       "transactionHash": "0xdfac05d66842b485c841c0289f78324bacae7a4612199cbba6f97710418896b6"
+    },
+    "1649162230228": {
+      "events": {},
+      "links": {},
+      "address": "0x38202FA2F51C474C6fA04962A606cCDfF08ffD4F",
+      "transactionHash": "0x85f869c149de52fb7346b7aa156f0b722fca282d713e2e65067c2e6f079a75b5"
+    },
+    "1649256955432": {
+      "events": {},
+      "links": {},
+      "address": "0x28817C3DFDEbF814506D4A3cca98410660b465DB",
+      "transactionHash": "0x36cce10f593c7747d2e13a700a4740a1c903cfa7a9de181a5279db2f49bf3049"
     }
   },
   "schemaVersion": "3.4.6",
-  "updatedAt": "2022-04-05T10:34:06.640Z",
+  "updatedAt": "2022-04-06T14:56:18.574Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},
