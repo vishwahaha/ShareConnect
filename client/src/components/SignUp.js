@@ -46,8 +46,6 @@ const theme = createTheme();
 const SignUp = () => {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const [publickey, setPublickey] = useState("");
-  const [privatekey, setPrivatekey] = useState("");
   const [loading, setLoading] = useState(false);
   const [web3, setWeb3] = useState("");
   const [accounts, setAccounts] = useState("");
@@ -97,25 +95,19 @@ const SignUp = () => {
     const userAddress = await userStorageContract.methods
       .getUser()
       .call({ from: accounts[0] });
-    // const allusers = await userStorageContract.methods
-    //   .getUsers()
-    //   .call({ from: accounts[0] });
-    // console.log(allusers);
     if (userAddress == 0) {
       // account doesn't exist on blockchain
       let keys = quickEncrypt.generate(2048);
-      setPrivatekey(keys.private);
-      setPublickey(keys.public);
       console.log(keys);
       console.log(keys.public);
       console.log(keys.private);
       await userStorageContract.methods
-        .createUser(name, publickey, privatekey)
+        .createUser(name, keys.public, keys.private)
         .send({
           from: accounts[0],
           _name: name,
-          _publickey: publickey,
-          _privatekey: privatekey,
+          _publickey: keys.public,
+          _privatekey: keys.private,
         })
         .then((res) => {
           setLoading(false);

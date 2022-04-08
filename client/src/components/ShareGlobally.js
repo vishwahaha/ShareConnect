@@ -12,6 +12,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
+// file imports
+import getWeb3 from "../utils/getWeb3";
+import UserStorage from "../contracts/UserStorage.json";
+import UserAccount from "../contracts/UserAccount.json";
+import ipfs from "../utils/ipfs";
+
 const ShareGlobally = () => {
   const [open, setOpen] = React.useState(false);
 
@@ -22,6 +28,96 @@ const ShareGlobally = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const [accounts, setAccounts] = React.useState([]);
+  const [web3, setWeb3] = React.useState(null);
+  const [publickey, setPublickey] = React.useState("");
+  const [privatekey, setPrivatekey] = React.useState("");
+  const [buffer, setBuffer] = React.useState("");
+  const [ipfsHash, setIpfsHash] = React.useState("");
+  const [fname, setFname] = React.useState("");
+  const [userContract, setUserContract] = React.useState(null);
+
+  React.useEffect(async() => {
+    await getWeb3()
+    .then(res => setWeb3(res));
+    // Use web3 to get the user's accounts.
+  }, [])
+  React.useEffect(async()=>{
+    if(web3){
+      await web3.eth.getAccounts()
+      .then(res => setAccounts(res));
+  }}, [web3])
+  React.useEffect(async() => {
+    if(web3){
+      const networkId = await web3.eth.net.getId();
+      const deployedNetwork = UserStorage.networks[networkId];
+      const userStorageContract = new web3.eth.Contract(
+        UserStorage.abi,
+        deployedNetwork && deployedNetwork.address
+      );
+      await userStorageContract.methods
+      .getUser()
+      .call({ from: accounts[0] })
+      .then(async (res)=> {
+        setUserContract(new web3.eth.Contract(
+          UserAccount.abi,
+          res
+        ));
+        console.log(res)
+      })
+  }}, [accounts]);
+  React.useEffect(async()=>{
+    console.log(userContract);
+    if(userContract) {
+      await userContract.methods.getPrivateKey().call({from:accounts[0]})
+      .then(res => setPrivatekey(res));
+      await userContract.methods.publicKey().call({from:accounts[0]})
+      .then(res => setPublickey(res));
+    }
+  }, [userContract])
+
+  const captureFile = event => {
+    event.stopPropagation();
+    event.preventDefault();
+    window.file = event.target.files[0];
+    let reader = new window.FileReader();
+    reader.readAsArrayBuffer(window.file);
+    reader.onloadend = () => convertToBuffer(reader);
+  };
+
+  const convertToBuffer = async reader => {
+    const bufferred = await Buffer.from(reader.result);
+    setBuffer(bufferred);
+  };
+
+  const shareFile = async() => {
+    try {
+      await ipfs.files.add(buffer, async (err, ipfsHash) => {
+        setIpfsHash(ipfsHash[0].hash);
+        console.log(err, "ipfsHash:: " + ipfsHash);
+
+        var fullPath = document.getElementById("ipfs").value;
+
+        if (fullPath) {
+          var startIndex =
+            fullPath.indexOf("\\") >= 0
+              ? fullPath.lastIndexOf("\\")
+              : fullPath.lastIndexOf("/");
+          var filename = fullPath.substring(startIndex);
+          if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
+            filename = filename.substring(1);
+          }
+          setFname(filename);
+        }
+        console.log(fname);
+        
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <div
       style={{
@@ -44,7 +140,7 @@ const ShareGlobally = () => {
           <DialogActions>
             <Button variant="contained" component="label">
               Upload File
-              <input type="file" hidden />
+              <input type="file" hidden onChange={(e) => captureFile} id="ipfs"/>
             </Button>
           </DialogActions>
         </Dialog>
