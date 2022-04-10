@@ -11,17 +11,20 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { FormControl } from "@mui/material";
 
 // file imports
 import getWeb3 from "../utils/getWeb3";
 import UserStorage from "../contracts/UserStorage.json";
 import UserAccount from "../contracts/UserAccount.json";
+import GlobalShare from "../contracts/GlobalShare.json";
 import ipfs from "../utils/ipfs";
 
 const ShareGlobally = () => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
+    console.log("hello")
     setOpen(true);
   };
 
@@ -34,9 +37,8 @@ const ShareGlobally = () => {
   const [publickey, setPublickey] = React.useState("");
   const [privatekey, setPrivatekey] = React.useState("");
   const [buffer, setBuffer] = React.useState("");
-  const [ipfsHash, setIpfsHash] = React.useState("");
-  const [fname, setFname] = React.useState("");
   const [userContract, setUserContract] = React.useState(null);
+  const [globalContract, setGlobalContract] = React.useState(null);
 
   React.useEffect(async() => {
     await getWeb3()
@@ -48,6 +50,7 @@ const ShareGlobally = () => {
       await web3.eth.getAccounts()
       .then(res => setAccounts(res));
   }}, [web3])
+  
   React.useEffect(async() => {
     if(web3){
       const networkId = await web3.eth.net.getId();
@@ -67,6 +70,18 @@ const ShareGlobally = () => {
         console.log(res)
       })
   }}, [accounts]);
+
+  React.useEffect(async() => {
+    if(web3){
+      const networkId = await web3.eth.net.getId();
+      const deployedNetwork = GlobalShare.networks[networkId];
+      const globalShareContract = new web3.eth.Contract(
+        GlobalShare.abi,
+        deployedNetwork && deployedNetwork.address
+      );
+      setGlobalContract(globalShareContract);
+  }}, [accounts]);
+
   React.useEffect(async()=>{
     console.log(userContract);
     if(userContract) {
@@ -81,6 +96,8 @@ const ShareGlobally = () => {
     event.stopPropagation();
     event.preventDefault();
     window.file = event.target.files[0];
+    console.log(window.file);
+    console.log("he11");
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(window.file);
     reader.onloadend = () => convertToBuffer(reader);
@@ -91,32 +108,37 @@ const ShareGlobally = () => {
     setBuffer(bufferred);
   };
 
-  const shareFile = async() => {
+  const shareFile = async(e) => {
+    e.preventDefault();
     try {
-      await ipfs.files.add(buffer, async (err, ipfsHash) => {
-        setIpfsHash(ipfsHash[0].hash);
-        console.log(err, "ipfsHash:: " + ipfsHash);
-
-        var fullPath = document.getElementById("ipfs").value;
-
-        if (fullPath) {
-          var startIndex =
-            fullPath.indexOf("\\") >= 0
-              ? fullPath.lastIndexOf("\\")
-              : fullPath.lastIndexOf("/");
-          var filename = fullPath.substring(startIndex);
-          if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
-            filename = filename.substring(1);
-          }
-          setFname(filename);
+      const ipfsData = await ipfs.add(buffer);
+      console.log(ipfsData);
+      console.log("ipfsHash:: " + ipfsData.path);
+      var fullPath = document.getElementById("ipfs").value
+      if (fullPath) {
+        var startIndex =
+          fullPath.indexOf("\\") >= 0
+            ? fullPath.lastIndexOf("\\")
+            : fullPath.lastIndexOf("/");
+        var filename = fullPath.substring(startIndex);
+        if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
+          filename = filename.substring(1);
         }
-        console.log(fname);
-        
+      }
+      console.log("filename-------",filename)
+      console.log("fullPath-------",fullPath)
+      await globalContract.methods
+      .uploadFile(
+        filename,
+        ipfsData.path
+      )
+      .send({
+        from: accounts[0]
       });
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   return (
     <div
@@ -138,10 +160,14 @@ const ShareGlobally = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" component="label">
-              Upload File
-              <input type="file" hidden onChange={(e) => captureFile} id="ipfs"/>
-            </Button>
+            <form>
+              <div>
+                <input type="file" onChange={captureFile} id="ipfs" />
+              </div>
+              <Button onClick={shareFile}>
+                Share File
+              </Button>
+            </form>
           </DialogActions>
         </Dialog>
       </div>

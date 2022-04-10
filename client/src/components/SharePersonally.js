@@ -15,6 +15,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 
 const SharePersonally = () => {
   const [open, setOpen] = React.useState(false);
+  const [metaaddress, setMetaaddress] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -44,6 +45,10 @@ const SharePersonally = () => {
               type="string"
               fullWidth
               variant="standard"
+              onChange={e => {
+              setMetaaddress(e.target.value)
+              console.log(metaaddress)
+              }}
             />
           </DialogContent>
           <DialogActions>
