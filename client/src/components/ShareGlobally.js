@@ -40,19 +40,20 @@ const ShareGlobally = () => {
   const [userContract, setUserContract] = React.useState(null);
   const [globalContract, setGlobalContract] = React.useState(null);
 
-  React.useEffect(async() => {
+  React.useEffect(async () => {
     await getWeb3()
-    .then(res => setWeb3(res));
+      .then(res => setWeb3(res));
     // Use web3 to get the user's accounts.
   }, [])
-  React.useEffect(async()=>{
-    if(web3){
+  React.useEffect(async () => {
+    if (web3) {
       await web3.eth.getAccounts()
-      .then(res => setAccounts(res));
-  }}, [web3])
-  
-  React.useEffect(async() => {
-    if(web3){
+        .then(res => setAccounts(res));
+    }
+  }, [web3])
+
+  React.useEffect(async () => {
+    if (web3) {
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = UserStorage.networks[networkId];
       const userStorageContract = new web3.eth.Contract(
@@ -60,19 +61,20 @@ const ShareGlobally = () => {
         deployedNetwork && deployedNetwork.address
       );
       await userStorageContract.methods
-      .getUser()
-      .call({ from: accounts[0] })
-      .then(async (res)=> {
-        setUserContract(new web3.eth.Contract(
-          UserAccount.abi,
-          res
-        ));
-        console.log(res)
-      })
-  }}, [accounts]);
+        .getUser()
+        .call({ from: accounts[0] })
+        .then(async (res) => {
+          setUserContract(new web3.eth.Contract(
+            UserAccount.abi,
+            res
+          ));
+          console.log(res)
+        })
+    }
+  }, [accounts]);
 
-  React.useEffect(async() => {
-    if(web3){
+  React.useEffect(async () => {
+    if (web3) {
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = GlobalShare.networks[networkId];
       const globalShareContract = new web3.eth.Contract(
@@ -80,15 +82,16 @@ const ShareGlobally = () => {
         deployedNetwork && deployedNetwork.address
       );
       setGlobalContract(globalShareContract);
-  }}, [accounts]);
+    }
+  }, [accounts]);
 
-  React.useEffect(async()=>{
+  React.useEffect(async () => {
     console.log(userContract);
-    if(userContract) {
-      await userContract.methods.getPrivateKey().call({from:accounts[0]})
-      .then(res => setPrivatekey(res));
-      await userContract.methods.publicKey().call({from:accounts[0]})
-      .then(res => setPublickey(res));
+    if (userContract) {
+      await userContract.methods.getPrivateKey().call({ from: accounts[0] })
+        .then(res => setPrivatekey(res));
+      await userContract.methods.publicKey().call({ from: accounts[0] })
+        .then(res => setPublickey(res));
     }
   }, [userContract])
 
@@ -108,7 +111,7 @@ const ShareGlobally = () => {
     setBuffer(bufferred);
   };
 
-  const shareFile = async(e) => {
+  const shareFile = async (e) => {
     e.preventDefault();
     try {
       const ipfsData = await ipfs.add(buffer);
@@ -125,16 +128,16 @@ const ShareGlobally = () => {
           filename = filename.substring(1);
         }
       }
-      console.log("filename-------",filename)
-      console.log("fullPath-------",fullPath)
+      console.log("filename-------", filename)
+      console.log("fullPath-------", fullPath)
       await globalContract.methods
-      .uploadFile(
-        filename,
-        ipfsData.path
-      )
-      .send({
-        from: accounts[0]
-      });
+        .uploadFile(
+          filename,
+          ipfsData.path
+        )
+        .send({
+          from: accounts[0]
+        });
     } catch (e) {
       console.log(e);
     }

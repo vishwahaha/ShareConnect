@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "ganache": "^7.0.3"
+    "ganache": "^7.0.3",
+    "sha3": "^2.1.4"
   }
 }

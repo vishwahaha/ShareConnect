@@ -27,6 +27,9 @@ contract UserStorage {
     return userData[msg.sender];
   }
 
+  function checkUser(address _metaAddress) public view returns(address) {
+    return userData[_metaAddress];
+  }
   function getUsers() public view isRegistered returns(address[] memory) {
     return userAddresses;
   }
