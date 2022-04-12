@@ -3,7 +3,7 @@ pragma solidity >=0.4.21 <=0.8.13;
 
 import './UserStorage.sol';
 
-contract GlobalShare is UserStorage {
+contract GlobalShare {
 
   struct file {
     string fileName;
@@ -11,21 +11,30 @@ contract GlobalShare is UserStorage {
     address sender;
   }
   file[] sharedFiles;
-  uint sharedFileSize = 0;
 
   function uploadFile(
     string memory _fileName,
     string memory _ipfsHash
-  ) public isRegistered {
+  ) public {
     _addFile(_fileName, _ipfsHash, msg.sender);
   }
   
-  function getAllFiles() public view isRegistered returns(file[] memory){
-    file[] memory files = new file[](sharedFileSize);
-    for (uint i = 0; i< sharedFileSize; i++) {
-      files[i] = sharedFiles[i];
+  function getAllFiles() public view returns(string[] memory, string[] memory, address[] memory){
+    // file[] memory files = new file[](sharedFileSize);
+    // for (uint i = 0; i< sharedFileSize; i++) {
+    //   files[i] = sharedFiles[i];
+    // }
+    // return files;
+    string[] memory fileName = new string[](sharedFiles.length);
+    string[] memory ipfsHash = new string[](sharedFiles.length);
+    address[] memory sender = new address[](sharedFiles.length);
+    for (uint i = 0; i < sharedFiles.length; i++) {
+        fileName[i] = sharedFiles[i].fileName;
+        ipfsHash[i] = sharedFiles[i].ipfsHash;
+        sender[i] = sharedFiles[i].sender;
     }
-    return files;
+    return (fileName,ipfsHash,sender);
+    // return "makk";
   }
 
   function _addFile(string memory _fileName, string memory _ipfsHash, address _sender) private  {
@@ -35,6 +44,5 @@ contract GlobalShare is UserStorage {
       sender: _sender
     });
     sharedFiles.push(newFile);
-    sharedFileSize++;
   }
 }

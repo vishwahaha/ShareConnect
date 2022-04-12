@@ -36,6 +36,7 @@ const ShareGlobally = () => {
   const [web3, setWeb3] = React.useState(null);
   const [publickey, setPublickey] = React.useState("");
   const [privatekey, setPrivatekey] = React.useState("");
+  const [fileName, setFileName] = React.useState("");
   const [buffer, setBuffer] = React.useState("");
   const [userContract, setUserContract] = React.useState(null);
   const [globalContract, setGlobalContract] = React.useState(null);
@@ -79,7 +80,9 @@ const ShareGlobally = () => {
         GlobalShare.abi,
         deployedNetwork && deployedNetwork.address
       );
-      setGlobalContract(globalShareContract);
+      if(globalShareContract) {
+        setGlobalContract(globalShareContract);
+      }
   }}, [accounts]);
 
   React.useEffect(async()=>{
@@ -96,8 +99,7 @@ const ShareGlobally = () => {
     event.stopPropagation();
     event.preventDefault();
     window.file = event.target.files[0];
-    console.log(window.file);
-    console.log("he11");
+    setFileName(window.file.name)
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(window.file);
     reader.onloadend = () => convertToBuffer(reader);
@@ -112,29 +114,23 @@ const ShareGlobally = () => {
     e.preventDefault();
     try {
       const ipfsData = await ipfs.add(buffer);
-      console.log(ipfsData);
-      console.log("ipfsHash:: " + ipfsData.path);
-      var fullPath = document.getElementById("ipfs").value
-      if (fullPath) {
-        var startIndex =
-          fullPath.indexOf("\\") >= 0
-            ? fullPath.lastIndexOf("\\")
-            : fullPath.lastIndexOf("/");
-        var filename = fullPath.substring(startIndex);
-        if (filename.indexOf("\\") === 0 || filename.indexOf("/") === 0) {
-          filename = filename.substring(1);
-        }
-      }
-      console.log("filename-------",filename)
-      console.log("fullPath-------",fullPath)
+      const ipfsHash = ipfsData.path;
       await globalContract.methods
       .uploadFile(
-        filename,
-        ipfsData.path
+        fileName,
+        ipfsHash
       )
       .send({
-        from: accounts[0]
-      });
+        from: accounts[0],
+        _fileName: fileName,
+        _ipfsHash: ipfsHash
+      })
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((e) => {
+        console.log(e)
+      })
     } catch (e) {
       console.log(e);
     }
