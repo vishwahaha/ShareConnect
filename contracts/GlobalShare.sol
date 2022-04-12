@@ -20,11 +20,6 @@ contract GlobalShare {
   }
   
   function getAllFiles() public view returns(string[] memory, string[] memory, address[] memory){
-    // file[] memory files = new file[](sharedFileSize);
-    // for (uint i = 0; i< sharedFileSize; i++) {
-    //   files[i] = sharedFiles[i];
-    // }
-    // return files;
     string[] memory fileName = new string[](sharedFiles.length);
     string[] memory ipfsHash = new string[](sharedFiles.length);
     address[] memory sender = new address[](sharedFiles.length);
@@ -34,7 +29,6 @@ contract GlobalShare {
         sender[i] = sharedFiles[i].sender;
     }
     return (fileName,ipfsHash,sender);
-    // return "makk";
   }
 
   function _addFile(string memory _fileName, string memory _ipfsHash, address _sender) private  {

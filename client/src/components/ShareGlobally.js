@@ -68,7 +68,6 @@ const ShareGlobally = () => {
           UserAccount.abi,
           res
         ));
-        console.log(res)
       })
   }}, [accounts]);
 
@@ -86,7 +85,6 @@ const ShareGlobally = () => {
   }}, [accounts]);
 
   React.useEffect(async()=>{
-    console.log(userContract);
     if(userContract) {
       await userContract.methods.getPrivateKey().call({from:accounts[0]})
       .then(res => setPrivatekey(res));

@@ -8,7 +8,6 @@ contract FileShare {
   //mapping from joined address of both users to address of deployed ShareChannel contract
   mapping (bytes => address) userPairToChannel;
 
-
   function createChannel(address _userA, address _userB) public {
     require(
       (msg.sender == _userA || msg.sender == _userB) &&

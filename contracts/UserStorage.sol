@@ -27,8 +27,13 @@ contract UserStorage {
     return userData[msg.sender];
   }
 
-  function getUsers() public view isRegistered returns(address[] memory) {
-    return userAddresses;
+  function getUserFromAddress(address _address) public view isRegistered returns(address) {
+    if(userData[_address] != address(0)){
+      return userData[_address];
+    }
+    else {
+      return address(0);
+    }
   }
 
   function _makeUser(
@@ -43,8 +48,8 @@ contract UserStorage {
       _publicKey, 
       _privateKey
     );
-    userAddresses.push(msg.sender);
-    userData[msg.sender] = address(newUser);
+    userAddresses.push(_userAddress);
+    userData[_userAddress] = address(newUser);
   }
 
 }

@@ -68,7 +68,6 @@ const Dashboard = () => {
           UserAccount.abi,
           res
         ));
-        console.log(res)
       })
   }}, [accounts]);
 
@@ -84,7 +83,6 @@ const Dashboard = () => {
   }}, [accounts]);
 
   React.useEffect(async()=>{
-    console.log(userContract);
     if(userContract) {
       await userContract.methods.name().call({from:accounts[0]})
       .then(res => setName(res));
