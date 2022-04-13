@@ -18,6 +18,11 @@ import ReceivedFiles from "./ReceivedFiles";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 
+// encryption packages
+import { JSEncrypt } from "jsencrypt";
+var CryptoJS = require("crypto-js");
+var RandomString = require("randomstring");
+
 function Interface() {
 
   const [web3, setWeb3] = React.useState(null);
@@ -185,17 +190,7 @@ function Interface() {
           });
         })
       }
-      // console.log(userB)
   }}, [web3]);
-
-  // const genPassPhrase = keyLength => {
-  //   var randomstring = "";
-  //   for (var i = 0; i < keyLength; i++) {
-  //     var rnum = Math.floor(Math.random() * chars.length);
-  //     randomstring += chars.substring(rnum, rnum + 1);
-  //   }
-  //   return randomstring;
-  // };
 
   const captureFile = event => {
     event.stopPropagation();
@@ -215,17 +210,31 @@ function Interface() {
   const shareFile = async(e) => {
     e.preventDefault();
     try {
-      const ipfsData = await ipfs.add(buffer);
+      var JSEncryptSender = new JSEncrypt();
+      var JSEncryptReceiver = new JSEncrypt();
+      JSEncryptSender.setPublicKey(publicKey1);
+      JSEncryptReceiver.setPublicKey(publicKey2);
+      const AESkey = RandomString.generate(8);
+      const encryptedBuffer = CryptoJS.AES.encrypt(buffer,AESkey);
+      const ipfsData = await ipfs.add(encryptedBuffer);
       const ipfsHash = ipfsData.path;
+      const senderEncryptedAESkey = JSEncryptSender.encrypt(AESkey);
+      const receiverEncryptedAESkey = JSEncryptReceiver.encrypt(AESkey);
       await shareChannel.methods
       .sendFile(
         fileName,
-        ipfsHash
+        ipfsHash,
+        senderEncryptedAESkey,
+        receiverEncryptedAESkey,
+        receiver
       )
       .send({
         from: acc[0],
         _fileName: fileName,
-        _ipfsHash: ipfsHash
+        _ipfsHash: ipfsHash,
+        _senderEncryptedAESKey: senderEncryptedAESkey,
+        _receiverEncryptedAESKey: receiverEncryptedAESkey,
+        _receiver: receiver
       })
       .then((res) => {
         console.log(res)
