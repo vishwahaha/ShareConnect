@@ -117,12 +117,18 @@ const Dashboard = () => {
     FileSaver.saveAs(blob,fileAll[index].fileName);
   }
 
+  console.log(name)
+
   return (
     <>
       <div className="dashboard">
         <SharePersonally />
         <div>
-          <Avatar {...stringAvatar("Profile User")} className="avatar" />
+          {name ?
+            <Avatar {...stringAvatar(name)} className="avatar" />
+              : 
+            <Avatar {...stringAvatar("User")} className="avatar" />
+          }
           <h4 style={{ textAlign: "center" }}>
             <strong>{name}</strong>
           </h4>

@@ -10,7 +10,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 
-export default function SharedFiles() {
+export default function SentFiles() {
   return (
     <div
       style={{

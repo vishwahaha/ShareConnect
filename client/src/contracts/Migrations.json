@@ -1048,7 +1048,7 @@
   "sourceMap": "68:304:2:-:0;;;220:43;;;;;;;;;;248:10;240:5;;:18;;;;;;;;;;;;;;;;;;68:304;;;;;;",
   "deployedSourceMap": "68:304:2:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;116:36;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;92:20;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;267:103;;;;;;;;;;;;;:::i;:::-;;:::i;:::-;;116:36;;;;:::o;92:20::-;;;;;;;;;;;;:::o;267:103::-;203:5;;;;;;;;;;189:19;;:10;:19;;;185:26;;;356:9:::1;329:24;:36;;;;185:26:::0;267:103;:::o;7:77:6:-;44:7;73:5;62:16;;7:77;;;:::o;90:118::-;177:24;195:5;177:24;:::i;:::-;172:3;165:37;90:118;;:::o;214:222::-;307:4;345:2;334:9;330:18;322:26;;358:71;426:1;415:9;411:17;402:6;358:71;:::i;:::-;214:222;;;;:::o;442:126::-;479:7;519:42;512:5;508:54;497:65;;442:126;;;:::o;574:96::-;611:7;640:24;658:5;640:24;:::i;:::-;629:35;;574:96;;;:::o;676:118::-;763:24;781:5;763:24;:::i;:::-;758:3;751:37;676:118;;:::o;800:222::-;893:4;931:2;920:9;916:18;908:26;;944:71;1012:1;1001:9;997:17;988:6;944:71;:::i;:::-;800:222;;;;:::o;1109:117::-;1218:1;1215;1208:12;1355:122;1428:24;1446:5;1428:24;:::i;:::-;1421:5;1418:35;1408:63;;1467:1;1464;1457:12;1408:63;1355:122;:::o;1483:139::-;1529:5;1567:6;1554:20;1545:29;;1583:33;1610:5;1583:33;:::i;:::-;1483:139;;;;:::o;1628:329::-;1687:6;1736:2;1724:9;1715:7;1711:23;1707:32;1704:119;;;1742:79;;:::i;:::-;1704:119;1862:1;1887:53;1932:7;1923:6;1912:9;1908:22;1887:53;:::i;:::-;1877:63;;1833:117;1628:329;;;;:::o",
   "source": "// SPDX-License-Identifier: MIT\npragma solidity >=0.4.21 <=0.8.13;\n\ncontract Migrations {\n  address public owner;\n  uint public last_completed_migration;\n\n  modifier restricted() {\n    if (msg.sender == owner) _;\n  }\n\n  constructor() {\n    owner = msg.sender;\n  }\n\n  function setCompleted(uint completed) public restricted {\n    last_completed_migration = completed;\n  }\n}\n",
-  "sourcePath": "/home/vishwa/Desktop/ShareConnect/contracts/Migrations.sol",
+  "sourcePath": "/home/ranasiddharth/ShareConnect/contracts/Migrations.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migrations.sol",
     "exportedSymbols": {
@@ -1995,10 +1995,40 @@
       "links": {},
       "address": "0xE0490deAEe7eAD94BC77DBdCb85DEc1c0D01F2C1",
       "transactionHash": "0x2277740992cb0373d2e1b43c77a69cff8b74096d364b662cf6d6c075189b110a"
+    },
+    "1649789565668": {
+      "events": {},
+      "links": {},
+      "address": "0x60C29c0892339780a69a9cBd6296ecFB644744e2",
+      "transactionHash": "0xbc4f80e5294c36c6047323fbb9d28a6dbe0388663c8830f402310bf48094cdb5"
+    },
+    "1649831093491": {
+      "events": {},
+      "links": {},
+      "address": "0xfFE54bD567Da5b19c42fec166aA7D73aC57fD10B",
+      "transactionHash": "0x34066fb9269ebbe9f5558bc97a1fd430fe87d80035d199038ad81cb84ec6f577"
+    },
+    "1649832320244": {
+      "events": {},
+      "links": {},
+      "address": "0x363F886cD6189179F8F45fE25Cd69880C9F40c3C",
+      "transactionHash": "0x74503eb522385a7d00cf838f1d0326cf0f614960baff288839b87219249297f0"
+    },
+    "1649832714218": {
+      "events": {},
+      "links": {},
+      "address": "0xb59044D255B6E0c890691CE9c2762F73760A1F07",
+      "transactionHash": "0x631518de60674d68f62f8cb4e3d0756146f6416bc437b57329d6003e87394d79"
+    },
+    "1649853080684": {
+      "events": {},
+      "links": {},
+      "address": "0x7971BC86EC16bDCCDEec0C527f2e75DBbEd30409",
+      "transactionHash": "0x31a1f27e814ae9778db150ef4f93f6c6e9f03a7474f233f82602ae58963cf9bd"
     }
   },
   "schemaVersion": "3.4.6",
-  "updatedAt": "2022-04-12T07:57:55.126Z",
+  "updatedAt": "2022-04-13T12:31:43.895Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

@@ -3,8 +3,8 @@ pragma solidity >=0.4.21 <=0.8.13;
 
 contract ShareChannel {
 
-  address userA;
-  address userB;
+  address public userA;
+  address public userB;
   file[] sharedFiles;
 
   struct file {
@@ -51,6 +51,10 @@ contract ShareChannel {
 
   function getReceivedFiles(address _user) public view isPartOfChannel {
     _findFiles(_user, false);
+  }
+
+  function getChannelUsers() public view returns(address, address){
+    return (userA, userB);
   }
 
   function _addFile(

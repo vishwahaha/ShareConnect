@@ -57,7 +57,7 @@ class App extends Component {
         <Route exact path="/dashboard" element={<Dashboard />}>
           
         </Route>
-        <Route exact path="/channel" element={<Interface />}>
+        <Route exact path="/channel/:id" element={<Interface />}>
           
         </Route>
       </Routes>

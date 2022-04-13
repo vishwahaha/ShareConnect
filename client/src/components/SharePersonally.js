@@ -1,5 +1,6 @@
 // third party imports
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 
 // css imports
 import "../css/sharepersonally.css";
@@ -24,7 +25,8 @@ const SharePersonally = () => {
   const [errorText, setErrorText] = React.useState("");
   const [metaaddress, setMetaaddress] = React.useState("");
   const [web3, setWeb3] = React.useState(null);
-  const [accounts, setAccounts] = React.useState("");
+
+  let navigate = useNavigate();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -85,6 +87,21 @@ const SharePersonally = () => {
           .send({ from: accounts[0] });
         console.log("created channel")
         //Get the new channel now.
+        const channel1 = await fileShareContract.methods
+        .getChannel(accounts[0], metaaddress)
+        .call({ from: accounts[0] });
+
+        const channel2 = await fileShareContract.methods
+          .getChannel(metaaddress, accounts[0])
+          .call({ from: accounts[0] });
+
+        let channelAddress = channel1 == 0 ? channel2 : channel1;
+        const shareChannelContract = new web3.eth.Contract(
+          ShareChannel.abi,
+          channelAddress
+        );
+        console.log(shareChannelContract);
+        navigate(`/channel/${channelAddress}`, { replace: true });
       }
       else {
         console.log('Channel already exists!', channel1, channel2)
@@ -94,6 +111,7 @@ const SharePersonally = () => {
           channelAddress
         );
         console.log(shareChannelContract);
+        navigate(`/channel/${channelAddress}`, { replace: true });
       }
     }
   }
