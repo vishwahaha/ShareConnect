@@ -45,16 +45,40 @@ contract ShareChannel {
     _addFile(_fileName, _ipfsHash, _senderEncryptedAESKey, _receiverEncryptedAESKey, _sender, msg.sender);
   }
 
-  function getSentFiles(address _user) public view isPartOfChannel {
-    _findFiles(_user, true);
+  function getSentFiles(address _user1, address _user2) public view {
+    _findFiles(_user1, _user2, true);
   }
 
-  function getReceivedFiles(address _user) public view isPartOfChannel {
-    _findFiles(_user, false);
+  function getReceivedFiles(address _user1, address _user2) public view isPartOfChannel {
+    _findFiles(_user1, _user2, false);
   }
 
   function getChannelUsers() public view returns(address, address){
     return (userA, userB);
+  }
+
+  function getSharedFiles() public view returns (string[] memory,
+    string[] memory,
+    string[] memory,
+    string[] memory,
+    address[] memory,
+    address[] memory
+  ){
+    string[] memory fileName = new string[](sharedFiles.length);
+    string[] memory ipfsHash = new string[](sharedFiles.length);
+    string[] memory senderEncryptedAESKey = new string[](sharedFiles.length);
+    string[] memory receiverEncryptedAESKey = new string[](sharedFiles.length);
+    address[] memory sender = new address[](sharedFiles.length);
+    address[] memory receiver = new address[](sharedFiles.length);
+    for (uint i = 0; i < sharedFiles.length; i++) {
+        fileName[i] = sharedFiles[i].fileName;
+        ipfsHash[i] = sharedFiles[i].ipfsHash;
+        senderEncryptedAESKey[i] = sharedFiles[i].senderEncryptedAESKey;
+        receiverEncryptedAESKey[i] = sharedFiles[i].receiverEncryptedAESKey;
+        sender[i] = sharedFiles[i].sender;
+        receiver[i] = sharedFiles[i].receiver;
+    }
+    return (fileName, ipfsHash,senderEncryptedAESKey, receiverEncryptedAESKey,sender, receiver);
   }
 
   function _addFile(
@@ -77,43 +101,71 @@ contract ShareChannel {
   }
 
   function _findFiles(
-    address _user, 
+    address _user1, 
+    address _user2,
     bool _getSent
   ) private view returns (
     string[] memory,
     string[] memory,
-    string[] memory,
-    string[] memory,
-    address[] memory,
-    address[] memory
+    string[] memory
+    // string[] memory,
+    // address[] memory,
+    // address[] memory
   ){
     //Destructure the return values.
-    (
-      string[] memory fileName,
-      string[] memory ipfsHash,
-      string[] memory senderEncryptedAESKey
-    ) = _findFiles1(_user, _getSent);
+    // (
+    //   string[] memory fileName,
+    //   string[] memory ipfsHash,
+    //   string[] memory senderEncryptedAESKey
+    // ) = _findFiles1(_user1, _user2, _getSent);
 
-    (
-      string[] memory receiverEncryptedAESKey,
-      address[] memory sender,
-      address[] memory receiver
-    ) = _findFiles2(_user, _getSent);
+    // (
+    //   string[] memory receiverEncryptedAESKey,
+    //   address[] memory sender,
+    //   address[] memory receiver
+    // ) = _findFiles2(_user1, _user2, _getSent);
+
+    uint arraySize = _calcArraySize(_user1, _user2, _getSent);
+
+    string[] memory fileName = new string[](arraySize);
+    string[] memory ipfsHash = new string[](arraySize);
+    string[] memory senderEncryptedAESKey = new string[](arraySize);
+
+    uint j = 0;
+    for(uint i = 0; i < sharedFiles.length; i++){
+      if(_getSent == true){
+        if(sharedFiles[i].sender == _user1 && sharedFiles[i].receiver == _user2){
+          fileName[j] = sharedFiles[i].fileName;
+          ipfsHash[j] = sharedFiles[i].ipfsHash;
+          senderEncryptedAESKey[j] = sharedFiles[i].senderEncryptedAESKey;
+          j++;
+        }
+      }
+      else {
+        if(sharedFiles[i].receiver == _user1 && sharedFiles[i].sender == _user2){
+          fileName[j] = sharedFiles[i].fileName;
+          ipfsHash[j] = sharedFiles[i].ipfsHash;
+          senderEncryptedAESKey[j] = sharedFiles[i].senderEncryptedAESKey;
+          j++;
+        }
+      }
+    }
 
     return (
       fileName,
       ipfsHash,
-      senderEncryptedAESKey,
-      receiverEncryptedAESKey,
-      sender,
-      receiver
+      senderEncryptedAESKey
+      // receiverEncryptedAESKey,
+      // sender,
+      // receiver
     );
   }
 
   //Divide the function into two to avoid 'stack too deep' errors.
 
   function _findFiles1(
-    address _user, 
+    address _user1,
+    address _user2, 
     bool _getSent
   ) private view returns (
     string[] memory,
@@ -121,7 +173,7 @@ contract ShareChannel {
     string[] memory
   ) {
 
-    uint arraySize = _calcArraySize(_user, _getSent);
+    uint arraySize = _calcArraySize(_user1, _user2, _getSent);
 
     string[] memory fileName = new string[](arraySize);
     string[] memory ipfsHash = new string[](arraySize);
@@ -130,7 +182,7 @@ contract ShareChannel {
     uint j = 0;
     for(uint i = 0; i < sharedFiles.length; i++){
       if(_getSent){
-        if(sharedFiles[i].sender == _user){
+        if(sharedFiles[i].sender == _user1 && sharedFiles[i].receiver == _user2){
           fileName[j] = sharedFiles[i].fileName;
           ipfsHash[j] = sharedFiles[i].ipfsHash;
           senderEncryptedAESKey[j] = sharedFiles[i].senderEncryptedAESKey;
@@ -138,7 +190,7 @@ contract ShareChannel {
         }
       }
       else {
-        if(sharedFiles[i].receiver == _user){
+        if(sharedFiles[i].receiver == _user1 && sharedFiles[i].sender == _user2){
           fileName[j] = sharedFiles[i].fileName;
           ipfsHash[j] = sharedFiles[i].ipfsHash;
           senderEncryptedAESKey[j] = sharedFiles[i].senderEncryptedAESKey;
@@ -155,14 +207,15 @@ contract ShareChannel {
   }
 
   function _findFiles2(
-    address _user, 
+    address _user1, 
+    address _user2,
     bool _getSent
   ) private view returns (
     string[] memory,
     address[] memory,
     address[] memory
   ) {
-    uint arraySize = _calcArraySize(_user, _getSent);
+    uint arraySize = _calcArraySize(_user1, _user2, _getSent);
 
     string[] memory receiverEncryptedAESKey = new string[](arraySize);
     address[] memory sender = new address[](arraySize);
@@ -171,7 +224,7 @@ contract ShareChannel {
     uint j = 0;
     for(uint i = 0; i < sharedFiles.length; i++){
       if(_getSent){
-        if(sharedFiles[i].sender == _user){
+        if(sharedFiles[i].sender == _user1 && sharedFiles[i].receiver == _user2){
           receiverEncryptedAESKey[j] = sharedFiles[i].receiverEncryptedAESKey;
           sender[j] = sharedFiles[i].sender;
           receiver[j] = sharedFiles[i].receiver;
@@ -179,7 +232,7 @@ contract ShareChannel {
         }
       }
       else {
-        if(sharedFiles[i].receiver == _user){
+        if(sharedFiles[i].receiver == _user1 && sharedFiles[i].sender == _user2){
           receiverEncryptedAESKey[j] = sharedFiles[i].receiverEncryptedAESKey;
           sender[j] = sharedFiles[i].sender;
           receiver[j] = sharedFiles[i].receiver;
@@ -195,16 +248,16 @@ contract ShareChannel {
     );
   }
 
-  function _calcArraySize(address _user, bool _getSent) private view returns(uint){
+  function _calcArraySize(address _user1, address _user2, bool _getSent) public view returns(uint){
     uint size = 0;
     for(uint i = 0; i < sharedFiles.length; i++){
       if(_getSent){
-        if(sharedFiles[i].sender == _user){
+        if(sharedFiles[i].sender == _user1 && sharedFiles[i].receiver == _user2){
           size++;
         }
       }
       else {
-        if(sharedFiles[i].receiver == _user){
+        if(sharedFiles[i].receiver == _user1 && sharedFiles[i].sender == _user2){
           size++;
         }
       }
