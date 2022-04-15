@@ -20,11 +20,10 @@ import UserAccount from "../contracts/UserAccount.json";
 import GlobalShare from "../contracts/GlobalShare.json";
 import ipfs from "../utils/ipfs";
 
-const ShareGlobally = () => {
+const ShareGlobally = ({refresh, setRefresh}) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
-    console.log("hello")
     setOpen(true);
   };
 
@@ -124,7 +123,9 @@ const ShareGlobally = () => {
         _ipfsHash: ipfsHash
       })
       .then((res) => {
-        console.log(res)
+        console.log(res);
+        setRefresh(!refresh);
+        handleClose();
       })
       .catch((e) => {
         console.log(e)

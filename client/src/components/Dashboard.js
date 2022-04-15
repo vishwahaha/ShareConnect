@@ -17,7 +17,14 @@ import getWeb3 from "../utils/getWeb3";
 import ipfs from "../utils/ipfs";
 
 // mui imports
-import { Avatar, Button, CardContent } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Divider from "@mui/material/Divider";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Typography from "@mui/material/Typography";
+import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 
 var FileSaver = require('file-saver');
 
@@ -39,7 +46,7 @@ const Dashboard = () => {
   const [globalContract, setGlobalContract] = React.useState(null);
   const [globalFiles, setGlobalFiles] = React.useState(null);
   const [fileAll, setFileAll] = React.useState([]);
-  const [show, setShow] = React.useState(false);
+  const [refresh, setRefresh] = React.useState([]);
 
   React.useEffect(async() => {
     await getWeb3()
@@ -89,23 +96,22 @@ const Dashboard = () => {
     }
   }, [userContract])
 
-  const getFiles = async(e) => {
-    e.preventDefault();
-    const files = await globalContract.methods.getAllFiles().call({from: accounts[0]});
-    setGlobalFiles(files);
-    const allfiles = [];
-    for(var i = 0; i < files[0].length; i++) {
-      let file = {
-        fileName: files[0][i],
-        ipfsHash: files[1][i],
-        sender: files[2][i]
+  React.useEffect(async() => {
+    if(globalContract) {
+      const files = await globalContract.methods.getAllFiles().call({from: accounts[0]});
+      setGlobalFiles(files);
+      const allfiles = [];
+      for(var i = 0; i < files[0].length; i++) {
+        let file = {
+          fileName: files[0][i],
+          ipfsHash: files[1][i],
+          sender: files[2][i]
+        }
+        allfiles.push(file)
       }
-      allfiles.push(file)
+      setFileAll(allfiles);
     }
-    setFileAll(allfiles);
-    console.log(fileAll);
-    setShow(true);
-  }
+  }, [globalContract, refresh])
 
   const download = async(index) => {
     const chunks = [];
@@ -116,8 +122,6 @@ const Dashboard = () => {
     var blob=new Blob([buf],{type:"application/octet-stream;"});
     FileSaver.saveAs(blob,fileAll[index].fileName);
   }
-
-  console.log(name)
 
   return (
     <>
@@ -136,30 +140,48 @@ const Dashboard = () => {
             <strong>{accounts[0]}</strong>
           </h5>
         </div>
-        <ShareGlobally />
+        <ShareGlobally refresh={refresh} setRefresh={setRefresh}/>
       </div>
-      <div>
-        <Button onClick={getFiles}>Check</Button>
-        {show && fileAll.length > 0 ?
-          fileAll.map((file, index) => {
-            return (
-              <>
-                <li key={index}>
-                  <div>
-                    {file.fileName}
-                  </div>
-                  <div>
-                    {file.ipfsHash}
-                  </div>
-                  <div>
-                    {file.sender}
-                  </div>
-                  <Button onClick={() => download(index)}>Download File</Button>
-                </li>
-              </>
-            )
-          })
-        : null}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minWidth: "40%",
+        }}
+      >
+        <List
+          sx={{
+            width: "100%",
+            maxWidth: 700,
+            bgcolor: "background.paper",
+            overflow: "auto",
+            maxHeight: 350,
+          }}
+        >
+          {fileAll.length > 0 ?
+            fileAll.map((file, index) => {
+              return (
+                <>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <FileCopyOutlinedIcon />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={file.fileName}
+                      secondary={
+                        <React.Fragment>
+                          <Button onClick={() => download(index)}>Download</Button>
+                        </React.Fragment>
+                      }
+                    />
+                  </ListItem>
+                  <Divider variant="inset" component="li" />
+                </>
+              )
+            })
+          : "No files present in the blockchain"}
+        </List>
       </div>
     </>
   );

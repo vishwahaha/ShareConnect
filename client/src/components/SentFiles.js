@@ -9,8 +9,59 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
+import { Button } from "@mui/material";
 
-export default function SentFiles() {
+// file imports
+import ipfs from "../utils/ipfs";
+var CryptoJS = require("crypto-js");
+const quickEncrypt = require("quick-encrypt");
+var FileSaver = require('file-saver');
+
+export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
+  const [fileAll, setFileAll] = React.useState([]);
+  React.useEffect(() => {
+    if(Object.keys(sentFiles1).length > 0 && Object.keys(sentFiles2).length > 0){
+      const allfiles = [];
+      for(var i = 0; i < sentFiles1[0].length; i++) {
+        let file = {
+          fileName: sentFiles1[0][i],
+          ipfsHash: sentFiles1[1][i],
+          senderEncryptedAESKey: sentFiles1[2][i],
+          receiverEncryptedAESKey: sentFiles2[0][i],
+          sender: sentFiles2[1][i],
+          receiver: sentFiles2[2][i],
+        }
+        allfiles.push(file)
+      }
+      setFileAll(allfiles);
+    }
+  }, [sentFiles1, sentFiles2])
+
+  function convertWordArrayToUint8Array(wordArray) {
+    var arrayOfWords = wordArray.hasOwnProperty("words") ? wordArray.words : [];
+    var length = wordArray.hasOwnProperty("sigBytes") ? wordArray.sigBytes : arrayOfWords.length * 4;
+    var uInt8Array = new Uint8Array(length), index=0, word, i;
+    for (i=0; i<length; i++) {
+        word = arrayOfWords[i];
+        uInt8Array[index++] = word >> 24;
+        uInt8Array[index++] = (word >> 16) & 0xff;
+        uInt8Array[index++] = (word >> 8) & 0xff;
+        uInt8Array[index++] = word & 0xff;
+    }
+    return uInt8Array;
+  }
+
+  const download = async(index) => {
+    var AESkey = quickEncrypt.decrypt(fileAll[index].senderEncryptedAESKey, privateKey);
+    console.log(AESkey)
+    console.log(fileAll[index].ipfsHash)
+    const chunks = [];
+    for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
+      chunks.push(...chunk);
+    }
+  }
+
+
   return (
     <div
       style={{
@@ -29,100 +80,28 @@ export default function SentFiles() {
           maxHeight: 350,
         }}
       >
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 1"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 35 MB"}
-              </React.Fragment>
-            }
-          />
-
-          <ListItemAvatar>
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 2"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 25 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 3"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 75 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 4"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 100 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
+        {fileAll.length > 0 ?
+          fileAll.map((file, index) => {
+            return (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <FileCopyOutlinedIcon />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={file.fileName}
+                    secondary={
+                      <React.Fragment>
+                        <Button onClick={() => download(index)}>Download</Button>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            )
+          })
+        : "No files sent"}
       </List>
     </div>
   );

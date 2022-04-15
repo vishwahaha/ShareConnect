@@ -9,8 +9,45 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
+import { Button } from "@mui/material";
 
-export default function ReceivedFiles() {
+// file imports
+import ipfs from "../utils/ipfs";
+var CryptoJS = require("crypto-js");
+const quickEncrypt = require("quick-encrypt");
+var FileSaver = require('file-saver');
+
+export default function ReceivedFiles({receivedFiles1, receivedFiles2, privateKey}) {
+  const [fileAll, setFileAll] = React.useState([]);
+  React.useEffect(() => {
+    if(Object.keys(receivedFiles1).length > 0 && Object.keys(receivedFiles2).length > 0){
+      const allfiles = [];
+      for(var i = 0; i < receivedFiles1[0].length; i++) {
+        let file = {
+          fileName: receivedFiles1[0][i],
+          ipfsHash: receivedFiles1[1][i],
+          senderEncryptedAESKey: receivedFiles1[2][i],
+          receiverEncryptedAESKey: receivedFiles2[0][i],
+          sender: receivedFiles2[1][i],
+          receiver: receivedFiles2[2][i],
+        }
+        allfiles.push(file)
+      }
+      setFileAll(allfiles);
+    }
+  }, [receivedFiles1, receivedFiles2])
+
+  const download = async(index) => {
+    const chunks = [];
+    for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
+      chunks.push(...chunk);
+    }
+    let buf = new Buffer.from(chunks)
+    var blob=new Blob([buf],{type:"application/octet-stream;"});
+    FileSaver.saveAs(blob,fileAll[index].fileName);
+  }
+
+
   return (
     <div
       style={{
@@ -20,7 +57,7 @@ export default function ReceivedFiles() {
         minWidth: "40%",
       }}
     >
-      <List
+        <List
         sx={{
           width: "100%",
           maxWidth: 700,
@@ -29,100 +66,28 @@ export default function ReceivedFiles() {
           maxHeight: 350,
         }}
       >
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 1"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 35 MB"}
-              </React.Fragment>
-            }
-          />
-
-          <ListItemAvatar>
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 2"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 25 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 3"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 75 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
-        <Divider variant="inset" component="li" />
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            {/* <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" /> */}
-            <FileCopyOutlinedIcon />
-          </ListItemAvatar>
-          <ListItemText
-            primary="FILE 4"
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: "inline" }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  File size
-                </Typography>
-                {" 100 MB"}
-              </React.Fragment>
-            }
-          />
-        </ListItem>
+        {fileAll.length > 0 ?
+          fileAll.map((file, index) => {
+            return (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <FileCopyOutlinedIcon />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={file.fileName}
+                    secondary={
+                      <React.Fragment>
+                        <Button onClick={() => download(index)}>Download</Button>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            )
+          })
+        : "No files sent"}
       </List>
     </div>
   );

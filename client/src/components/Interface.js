@@ -41,8 +41,10 @@ function Interface() {
   const [buffer, setBuffer] = React.useState("");
   const [shareChannel, setShareChannel] = React.useState(null);
   const [acc, setAcc] = React.useState([]);
-  const [sentFiles, setSentFiles] = React.useState([]);
-  const [receivedFiles, setReceivedFiles] = React.useState([]);
+  const [sentFiles1, setSentFiles1] = React.useState({});
+  const [sentFiles2, setSentFiles2] = React.useState({});
+  const [receivedFiles1, setReceivedFiles1] = React.useState({});
+  const [receivedFiles2, setReceivedFiles2] = React.useState({});
   const [wordArray, setWordArray] = React.useState([]);
   // const [encrypted, setEncrypted] = React.useState("");
 
@@ -83,6 +85,14 @@ function Interface() {
       if(accounts[0] == users['0']) {
         setSender(users['0']);
         setReceiver(users['1']);
+        const sent1 = await shareChannelContract.methods.getSentFiles1(users['0'], users['1']).call({from: users['0']});
+        const sent2 = await shareChannelContract.methods.getSentFiles2(users['0'], users['1']).call({from: users['0']});
+        const received1 = await shareChannelContract.methods.getSentFiles1(users['1'], users['0']).call({from: users['0']});
+        const received2 = await shareChannelContract.methods.getSentFiles2(users['1'], users['0']).call({from: users['0']});
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
+        setReceivedFiles1(received1);
+        setReceivedFiles2(received2);
         await userStorageContract.methods
         .getUser()
         .call({ from: users['0'] })
@@ -132,6 +142,14 @@ function Interface() {
       }else{
         setSender(users['1']);
         setReceiver(users['0']);
+        const sent1 = await shareChannelContract.methods.getSentFiles1(users['1'], users['0']).call({from: users['1']});
+        const sent2 = await shareChannelContract.methods.getSentFiles2(users['1'], users['0']).call({from: users['1']});
+        const received1 = await shareChannelContract.methods.getSentFiles1(users['0'], users['1']).call({from: users['1']});
+        const received2 = await shareChannelContract.methods.getSentFiles2(users['0'], users['1']).call({from: users['1']});
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
+        setReceivedFiles1(received1);
+        setReceivedFiles2(received2);
         await userStorageContract.methods
         .getUser()
         .call({ from: users['1'] })
@@ -193,7 +211,7 @@ function Interface() {
         uInt8Array[index++] = word & 0xff;
     }
     return uInt8Array;
-}
+  }
 
   const captureFile = event => {
     event.stopPropagation();
@@ -207,6 +225,7 @@ function Interface() {
       // const AESkey = RandomString.generate(8);
       setWordArray(CryptoJS.lib.WordArray.create(reader.result));           // Convert: ArrayBuffer -> WordArray
       console.log(wordArray)
+      // const wordArray = CryptoJS.lib.WordArray.create(reader.result);
       // const encrypted = CryptoJS.AES.encrypt(wordArray, AESkey).toString();        // Encryption: I: WordArray -> O: -> Base64 encoded string (OpenSSL-format)
       // console.log(encrypted)
       // var decrypted = CryptoJS.AES.decrypt(encrypted, AESkey);               // Decryption: I: Base64 encoded string (OpenSSL-format) -> O: WordArray
@@ -232,11 +251,8 @@ function Interface() {
       console.log(encrypted)
       var quickEncryptSender = quickEncrypt.encrypt(AESkey, publicKey1);
       var quickEncryptReceiver =  quickEncrypt.encrypt(AESkey, publicKey2);
-      console.log(quickEncryptSender);
-      console.log(quickEncryptReceiver);
       const ipfsData = await ipfs.add(encrypted);
       const ipfsHash = ipfsData.path;
-      console.log(ipfsHash)
       await shareChannel.methods
       .sendFile(
         fileName,
@@ -251,63 +267,13 @@ function Interface() {
         _quickEncryptSender: quickEncryptSender,
         _quickEncryptReceiver: quickEncryptReceiver,
         _receiver: receiver
-      }).then(res => {
-        console.log("hello1----------->")
-        console.log(res)
+      }).then(async(res) => {
+        const sent1 = await shareChannel.methods.getSentFiles1(sender, receiver).call({from: sender});
+        const sent2 = await shareChannel.methods.getSentFiles2(sender, receiver).call({from: sender});
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
       })
-      // JSEncryptSender.setPublicKey(publicKey1);
-      // JSEncryptReceiver.setPublicKey(publicKey2);
-      // const encryptedBuffer = CryptoJS.AES.encrypt(encrypted,AESkey);
-      // console.log(buffer)
-      // console.log(encrypted)
-      // const ipfsData = await ipfs.add(encryptedBuffer);
-      // const ipfsHash = ipfsData.path;
-      // const senderEncryptedAESkey = JSEncryptSender.encrypt(AESkey);
-      // const receiverEncryptedAESkey = JSEncryptReceiver.encrypt(AESkey);
-      // await shareChannel.methods
-      // .sendFile(
-      //   fileName,
-      //   ipfsHash,
-      //   senderEncryptedAESkey,
-      //   receiverEncryptedAESkey,
-      //   receiver
-      // )
-      // .send({
-      //   from: acc[0],
-      //   _fileName: fileName,
-      //   _ipfsHash: ipfsHash,
-      //   _senderEncryptedAESKey: senderEncryptedAESkey,
-      //   _receiverEncryptedAESKey: receiverEncryptedAESkey,
-      //   _receiver: receiver
-      // })
-      // .then((res) => {
-      //   console.log(res)
-      // })
-      // .catch((e) => {
-      //   console.log(e)
-      // })
-    // } catch (e) {
-    //   console.log(e);
-    // }
   };
-
-  // console.log(sentFiles);
-  // console.log(receivedFiles);
-  const getFiles = async(e) => {
-    e.preventDefault();
-    console.log("hello");
-    const res1 = await shareChannel.methods.getSentFiles1(sender, receiver).call({from: sender});
-    const res2 = await shareChannel.methods.getSentFiles2(sender, receiver).call({from: sender});
-    console.log(res1, res2);
-    
-    // console.log(Object.keys(files1).length);
-    // const files2 = await shareChannel.methods.getSentFiles(receiver).call({from: sender});
-    // const files1 = await shareChannel.methods._calcArraySize(sender, receiver, false).call({from: sender});
-    // const files2 = await shareChannel.methods._calcArraySize(sender, receiver, true).call({from: sender});
-    // console.log(files1);
-    // console.log(files2);
-  }
-
 
 
   return (
@@ -330,7 +296,7 @@ function Interface() {
             <h4 style={{ textAlign: "center" }}> {name1} </h4>
             <h5 style={{ textAlign: "center" }}> {sender} </h5>
           </div>
-          <SentFiles />
+          <SentFiles sentFiles1={sentFiles1} sentFiles2={sentFiles2} privateKey={privateKey1}/>
           <div>
             <Avatar {...stringAvatar(`${name2}`)} />
             <h4 style={{ textAlign: "center" }}> {name2} </h4>
@@ -358,11 +324,10 @@ function Interface() {
         </div>
         <div style={{ marginLeft: "auto", marginRight: "auto", width: "40%" }}>
           {" "}
-          <ReceivedFiles />
+          <ReceivedFiles receivedFiles1={receivedFiles1} receivedFiles2={receivedFiles2} privateKey={privateKey1}/>
         </div>
       </div>
     </div>
-    <Button onClick={getFiles}>Check</Button>
     </>
   );
 }
