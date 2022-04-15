@@ -28,7 +28,7 @@ contract GlobalShare {
         ipfsHash[i] = sharedFiles[i].ipfsHash;
         sender[i] = sharedFiles[i].sender;
     }
-    return (fileName,ipfsHash,sender);
+    return (fileName, ipfsHash, sender);
   }
 
   function _addFile(string memory _fileName, string memory _ipfsHash, address _sender) private  {

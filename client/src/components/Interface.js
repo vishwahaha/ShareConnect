@@ -35,8 +35,8 @@ function Interface() {
   const [publicKey1, setPublicKey1] = React.useState("");
   const [publicKey2, setPublicKey2] = React.useState("");
   const [privateKey1, setPrivateKey1] = React.useState("");
-  const [sender, setSender] = React.useState("");
-  const [receiver, setReceiver] = React.useState("");
+  const [sender, setSender] = React.useState(null);
+  const [receiver, setReceiver] = React.useState(null);
   const [fileName, setFileName] = React.useState("");
   const [buffer, setBuffer] = React.useState("");
   const [shareChannel, setShareChannel] = React.useState(null);
@@ -296,12 +296,15 @@ function Interface() {
   const getFiles = async(e) => {
     e.preventDefault();
     console.log("hello");
-    const files1 = await shareChannel.methods.getSentFiles(sender, receiver).call({from: sender});
+    const res1 = await shareChannel.methods.getSentFiles1(sender, receiver).call({from: sender});
+    const res2 = await shareChannel.methods.getSentFiles2(sender, receiver).call({from: sender});
+    console.log(res1, res2);
+    
     // console.log(Object.keys(files1).length);
     // const files2 = await shareChannel.methods.getSentFiles(receiver).call({from: sender});
     // const files1 = await shareChannel.methods._calcArraySize(sender, receiver, false).call({from: sender});
     // const files2 = await shareChannel.methods._calcArraySize(sender, receiver, true).call({from: sender});
-    console.log(files1);
+    // console.log(files1);
     // console.log(files2);
   }
 
