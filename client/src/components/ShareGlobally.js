@@ -11,7 +11,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { FormControl } from "@mui/material";
+import FolderIcon from '@mui/icons-material/Folder';
+import { Avatar } from "@mui/material";
 
 // file imports
 import getWeb3 from "../utils/getWeb3";
@@ -135,22 +136,18 @@ const ShareGlobally = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <div>
       <div className="share_globally">
-        <Button variant="contained" onClick={handleClickOpen}>
-          Send Globally
+        <center>
+        <Button variant="contained" onClick={handleClickOpen} sx={{ visibility: 'hidden' }}>
+           <Avatar sx={{visibility: 'visible'}}><FolderIcon /></Avatar>
         </Button>
+        <h5 style={{color: "white"}}>Share Globally</h5> 
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Send Globally</DialogTitle>
+          <DialogTitle>Share Globally</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Choose file to send to all users:
+              Choose file to share with all users:
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -164,6 +161,7 @@ const ShareGlobally = () => {
             </form>
           </DialogActions>
         </Dialog>
+        </center>
       </div>
     </div>
   );

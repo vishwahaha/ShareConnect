@@ -2,9 +2,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-bottom: 4rem;
+  background-color: black;
+}
+.flexRow {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   min-height: 100vh;
+  background-color: black;
 }
 
+.table {
+  background-color: black;
+}
+
+.dashboard > div {
+  max-height: 50vh;
+  min-width: 30vh;
+}
 .avatar {
-  margin-bottom: 1em !important;
+  margin-bottom: 0.6em !important;
 }
