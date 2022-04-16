@@ -1,8 +1,5 @@
 {
   "dependencies": {
-    "crypto-js": "^4.1.1",
-    "ganache": "^7.0.3",
-    "jsencrypt": "^3.2.1",
-    "randomstring": "^1.2.2"
+    "ganache": "^7.0.3"
   }
 }
