@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 
+
 // css imports
 import "../css/dashboard.css";
 
@@ -18,6 +19,13 @@ import ipfs from "../utils/ipfs";
 
 // mui imports
 import { Avatar, Button, CardContent } from "@mui/material";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 var FileSaver = require('file-saver');
 
@@ -121,7 +129,9 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="dashboard">
+    <div>
+      <div className="flexRow">
+      <div className="dashboard" >
         <SharePersonally />
         <div>
           {name ?
@@ -129,37 +139,46 @@ const Dashboard = () => {
               : 
             <Avatar {...stringAvatar("User")} className="avatar" />
           }
-          <h4 style={{ textAlign: "center" }}>
+          <h4 style={{ textAlign: "center", color: "white" }}>
             <strong>{name}</strong>
           </h4>
-          <h5 style={{ textAlign: "center" }}>
-            <strong>{accounts[0]}</strong>
-          </h5>
         </div>
         <ShareGlobally />
+        
+        </div>
+        <div>
+          <Button onClick={getFiles}>Show Sent Files</Button>
+        </div>
       </div>
+        
       <div>
-        <Button onClick={getFiles}>Check</Button>
-        {show && fileAll.length > 0 ?
-          fileAll.map((file, index) => {
-            return (
-              <>
-                <li key={index}>
-                  <div>
+        
+        <TableContainer component={Paper} sx={{bgcolor: 'black', borderRadius: 0}}>
+          <Table align="center" sx={{ width: '100%', borderRadius: 0, bgcolor: 'black'}} size="small" aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{color:'white'}}>File</TableCell>
+                <TableCell align="center" sx={{color:'white'}}>Sender</TableCell>
+                <TableCell align="center" sx={{color:'white'}}>Link</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fileAll.map((file,index) => (
+                <TableRow
+                  key={file.fileName}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row" sx={{color:'white'}}>
                     {file.fileName}
-                  </div>
-                  <div>
-                    {file.ipfsHash}
-                  </div>
-                  <div>
-                    {file.sender}
-                  </div>
-                  <Button onClick={() => download(index)}>Download File</Button>
-                </li>
-              </>
-            )
-          })
-        : null}
+                  </TableCell>
+                  <TableCell align="center" sx={{color:'white'}}>{file.ipfsHash}</TableCell>
+                  <TableCell align="center" sx={{color:'white'}}><Button onClick={() => download(index)}>Download File</Button></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
       </div>
     </>
   );

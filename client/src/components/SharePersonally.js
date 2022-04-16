@@ -17,7 +17,8 @@ import getWeb3 from "../utils/getWeb3";
 import UserStorage from "../contracts/UserStorage.json";
 import FileShare from "../contracts/FileShare.json";
 import ShareChannel from "../contracts/ShareChannel.json"
-import { Alert } from '@mui/material';
+import FolderIcon from '@mui/icons-material/Folder';
+import { Alert, Avatar } from '@mui/material';
 
 const SharePersonally = () => {
   const [open, setOpen] = React.useState(false);
@@ -132,11 +133,13 @@ const SharePersonally = () => {
   }
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+    <div>
       <div className="send_personally">
-        <Button variant="contained" onClick={handleClickOpen}>
-          Send Personally
+        <center>
+        <Button variant="contained" onClick={handleClickOpen} 	sx={{ visibility: 'hidden' }}>
+          <Avatar sx={{visibility: 'visible'}}><FolderIcon /></Avatar>
         </Button>
+        <h5 style={{color: "white"}}>Send Personally</h5 >
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Send File Personally</DialogTitle>
           <DialogContent>
@@ -165,6 +168,7 @@ const SharePersonally = () => {
             <Button onClick={handleClose}>Cancel</Button>
           </DialogActions>
         </Dialog>
+        </center>
       </div>
     </div>
   );
