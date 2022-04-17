@@ -10,7 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
-import { Button } from "@mui/material";
+import { Button, Card } from "@mui/material";
 import "../css/scrollbar.css"
 
 // file imports
@@ -43,12 +43,11 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
 
   const download = async(index) => {
     var AESkey = quickEncrypt.decrypt(fileAll[index].senderEncryptedAESKey, privateKey);
-    const chunks = [];
-    // const MAXLEN = 1516288;
+    let resolvedString = ''; 
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
-      chunks.push(...chunk);
+      resolvedString += Utf8ArrayToStr(chunk);
     }
-    var decrypted = CryptoJS.AES.decrypt(Utf8ArrayToStr(chunks), AESkey);
+    var decrypted = CryptoJS.AES.decrypt(resolvedString, AESkey);
     var uint8array = convertWordArrayToUint8Array(decrypted);
     var blob=new Blob([uint8array],{type:"application/octet-stream;"});
     FileSaver.saveAs(blob, fileAll[index].fileName);
@@ -59,19 +58,29 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
     <div
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        minWidth: "40%",
-        textAlign:"center"
+        width: '80vw',
+        textAlign:"center",
+        backgroundColor: "#000",
+        borderRadius: 10,
+        padding: '10px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
       }}
     >
+      <Typography
+        variant="h4"
+      >
+
+        Sent files
+      </Typography>
       <List
         sx={{
           width: "100%",
-          maxWidth: 700,
           overflow: "auto",
           maxHeight: 200,
-          
         }}
       >
         {fileAll.length > 0 ?
@@ -84,12 +93,8 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
                   </ListItemAvatar>
                   <ListItemText
                     primary={file.fileName}
-                    secondary={
-                      <React.Fragment>
-                        <Button onClick={() => download(index)}>Download</Button>
-                      </React.Fragment>
-                    }
                   />
+                  <Button edge="end" onClick={() => download(index)}>Download</Button>
                 </ListItem>
                 <Divider variant="inset" component="li" />
               </>

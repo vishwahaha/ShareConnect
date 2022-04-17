@@ -29,11 +29,6 @@ function stringAvatar(name) {
   return {
     sx: {
       bgcolor: stringToColor(name),
-      width: 150,
-      height: 150,
-      fontSize: 50,
-      margin: "auto",
-      marginBottom: 10,
     },
     children: `${x}`,
   };

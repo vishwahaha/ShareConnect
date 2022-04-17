@@ -166,9 +166,21 @@ const Dashboard = () => {
         <SharePersonally />
         <div>
           {name ?
-            <Avatar {...stringAvatar(name)} className="avatar" />
+            <Avatar style={{
+              width: 150,
+              height: 150,
+              fontSize: 50,
+              margin: "auto",
+              marginBottom: 10
+            }} {...stringAvatar(name)} className="avatar" />
               : 
-            <Avatar {...stringAvatar("User")} className="avatar" />
+            <Avatar style={{
+              width: 150,
+              height: 150,
+              fontSize: 50,
+              margin: "auto",
+              marginBottom: 10
+            }} {...stringAvatar("User")} className="avatar" />
           }
           <h4 style={{ textAlign: "center" }}>
             <strong>{name}</strong>
@@ -184,8 +196,8 @@ const Dashboard = () => {
             <strong>Files shared</strong>
           </h4>
           
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+          {/* <Scrollbar> */}
+            <TableContainer sx={{ minWidth: 200 }}>
               <Table>
                 <ListHead
                   headLabel={TABLE_HEAD}
@@ -221,7 +233,7 @@ const Dashboard = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </Scrollbar>
+          {/* </Scrollbar> */}
 
           <TablePagination
             rowsPerPageOptions={[7, 10, 25]}
