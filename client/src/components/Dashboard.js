@@ -144,7 +144,7 @@ const Dashboard = () => {
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
       chunks.push(...chunk);
     }
-    let buf = new Buffer.from(chunks)
+    let buf = new Buffer.from(chunks);
     var blob=new Blob([buf],{type:"application/octet-stream;"});
     FileSaver.saveAs(blob,fileAll[index].fileName);
   }

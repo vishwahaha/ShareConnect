@@ -223,6 +223,7 @@ function Interface() {
     var quickEncryptReceiver = quickEncrypt.encrypt(AESkey, publicKey2);
     const ipfsData = await ipfs.add(encrypted);
     const ipfsHash = ipfsData.path;
+    setFileName("");
     await shareChannel.methods
       .sendFile(
         fileName,
@@ -282,9 +283,13 @@ function Interface() {
                 />
                 </ListItem>
             </div>
-
-            <CompareArrowsIcon sx={{ fontSize: 60 }} />
-
+            <label for="file">
+              <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+                <CompareArrowsIcon sx={{ fontSize: 60 }} style={{cursor: "pointer"}}/>
+                <input type="file" id="file" hidden onChange={captureFile} />
+                <h6 style={{wordBreak: "break-word", textAlign: "center"}}>{fileName}</h6>
+              </div>
+            </label>
             <div style={{ boxShadow: "0 -2px 10px rgba(0, 0, 0, 1)",  borderRadius: "10px", background: "#181818" }}>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
@@ -310,7 +315,6 @@ function Interface() {
           </div>
 
           <div className="container text-center" style={{ marginBottom: "5em" }}>
-            <input type="file" onChange={captureFile} />
             <Button
               size="large"
               variant="contained"
