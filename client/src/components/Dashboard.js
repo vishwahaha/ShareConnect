@@ -25,6 +25,26 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+// material
+import {
+  Card,
+  Table,
+  Stack,
+  Checkbox,
+  TableRow,
+  TableBody,
+  TableCell,
+  Container,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
+// components
+import Scrollbar from './tools/Scrollbar';
+import ListHead from "./tools/ListHead";
+
+
 
 var FileSaver = require('file-saver');
 
@@ -47,6 +67,10 @@ const Dashboard = () => {
   const [globalFiles, setGlobalFiles] = React.useState(null);
   const [fileAll, setFileAll] = React.useState([]);
   const [refresh, setRefresh] = React.useState([]);
+  const [page, setPage] = useState(0);
+  const [emptyRows, setEmptyrows] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
+  const [filterName, setFilterName] = useState('');
 
   React.useEffect(async() => {
     await getWeb3()
@@ -96,6 +120,7 @@ const Dashboard = () => {
     }
   }, [userContract])
 
+
   React.useEffect(async() => {
     if(globalContract) {
       const files = await globalContract.methods.getAllFiles().call({from: accounts[0]});
@@ -113,6 +138,7 @@ const Dashboard = () => {
     }
   }, [globalContract, refresh])
 
+
   const download = async(index) => {
     const chunks = [];
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
@@ -122,9 +148,20 @@ const Dashboard = () => {
     var blob=new Blob([buf],{type:"application/octet-stream;"});
     FileSaver.saveAs(blob,fileAll[index].fileName);
   }
+  const TABLE_HEAD = [
+  { id: 'name', label: 'Name', alignRight: false },
+  { id: '' },
+];
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   return (
-    <>
+    <div className="dashboard-container">
       <div className="dashboard">
         <SharePersonally />
         <div>
@@ -142,48 +179,63 @@ const Dashboard = () => {
         </div>
         <ShareGlobally refresh={refresh} setRefresh={setRefresh}/>
       </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minWidth: "40%",
-        }}
-      >
-        <List
-          sx={{
-            width: "100%",
-            maxWidth: 700,
-            bgcolor: "background.paper",
-            overflow: "auto",
-            maxHeight: 350,
-          }}
-        >
-          {fileAll.length > 0 ?
-            fileAll.map((file, index) => {
-              return (
-                <>
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <FileCopyOutlinedIcon />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={file.fileName}
-                      secondary={
-                        <React.Fragment>
+      <Card className="fileTable">
+         <h4 style={{ textAlign: "center" }}>
+            <strong>Files shared</strong>
+          </h4>
+          
+          <Scrollbar>
+            <TableContainer sx={{ minWidth: 800 }}>
+              <Table>
+                <ListHead
+                  headLabel={TABLE_HEAD}
+                  rowCount={fileAll.length}
+                />
+                <TableBody>
+                  {fileAll.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((file,index) => {
+
+                    return (
+                      <TableRow
+                        hover
+                        tabIndex={-1}
+                      >
+                        <TableCell component="th" scope="row" padding="none">
+                          <Stack direction="row" alignItems="center" spacing={2}>
+                            <FileCopyOutlinedIcon sx={{color:"#fff"}}/>
+                            <Typography variant="subtitle2" noWrap color="#fff">
+                              {file.fileName}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+        
+                        
+
+                        <TableCell align="right">
+                          <React.Fragment>
                           <Button onClick={() => download(index)}>Download</Button>
                         </React.Fragment>
-                      }
-                    />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                </>
-              )
-            })
-          : "No files present in the blockchain"}
-        </List>
-      </div>
-    </>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Scrollbar>
+
+          <TablePagination
+            rowsPerPageOptions={[7, 10, 25]}
+            component="div"
+            count={fileAll.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            style={{color:"white", fill: "white"}}
+          />
+        </Card>
+      
+    </div>
   );
 };
 

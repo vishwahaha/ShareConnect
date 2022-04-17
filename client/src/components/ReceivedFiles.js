@@ -10,7 +10,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 import { Button } from "@mui/material";
-
+import "../css/scrollbar.css"
 // file imports
 import ipfs from "../utils/ipfs";
 var CryptoJS = require("crypto-js");
@@ -55,15 +55,15 @@ export default function ReceivedFiles({receivedFiles1, receivedFiles2, privateKe
         justifyContent: "center",
         alignItems: "center",
         minWidth: "40%",
+        textAlign:"center"
       }}
     >
         <List
         sx={{
           width: "100%",
           maxWidth: 700,
-          bgcolor: "background.paper",
           overflow: "auto",
-          maxHeight: 350,
+          maxHeight: 200,
         }}
       >
         {fileAll.length > 0 ?
@@ -87,7 +87,7 @@ export default function ReceivedFiles({receivedFiles1, receivedFiles2, privateKe
               </>
             )
           })
-        : "No files sent"}
+        :<div style={{color:"white"}}>No files received</div>}
       </List>
     </div>
   );

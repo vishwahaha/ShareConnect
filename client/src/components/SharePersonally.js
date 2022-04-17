@@ -137,7 +137,7 @@ const SharePersonally = () => {
         <Button variant="contained" onClick={handleClickOpen}>
           Send Personally
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} style= {{backgroundColor: '#181818',color: 'white'}}>
           <DialogTitle>Send File Personally</DialogTitle>
           <DialogContent>
             <DialogContentText>

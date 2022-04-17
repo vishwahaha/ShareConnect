@@ -147,7 +147,7 @@ const ShareGlobally = ({refresh, setRefresh}) => {
         <Button variant="contained" onClick={handleClickOpen}>
           Send Globally
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} style= {{backgroundColor: '#181818',color: 'white'}}>
           <DialogTitle>Send Globally</DialogTitle>
           <DialogContent>
             <DialogContentText>

@@ -20,6 +20,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 
 const quickEncrypt = require("quick-encrypt");
 
@@ -133,17 +135,39 @@ const SignUp = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="sign-up">
-        <Container component="main" maxWidth="xs" className="container-div">
-          <CssBaseline />
+        {/* <Container component="main" maxWidth="xs" className="container-div">
+          <CssBaseline /> */}
+          <Grid container component="main" sx={{ height: '100vh' }}>
+        <CssBaseline />
+        <Grid
+          item
+          xs={false}
+          sm={4}
+          md={7}
+          sx={{
+            backgroundImage: 'url(https://wallpaperaccess.com/full/1267683.png)',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: (t) =>
+              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square sx={{pt:"4rem" }}>
           <Box
             sx={{
-              marginTop: 8,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              my: 8,
+              mx: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <Avatar 
+              alt="Remy Sharp" 
+              src="https://www.renderhub.com/yurecs/ethereum-coin/ethereum-coin-01.jpg" 
+              sx={{ width: 64, height: 64 }}
+              /><Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -174,13 +198,15 @@ const SignUp = () => {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                color="grey"
               >
                 Sign Up
               </Button>
             </Box>
           </Box>
           <Copyright sx={{ mt: 8, mb: 4 }} />
-        </Container>
+        </Grid>
+        </Grid>
       </div>
     </ThemeProvider>
   );

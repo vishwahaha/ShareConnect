@@ -17,9 +17,13 @@ import ReceivedFiles from "./ReceivedFiles";
 // mui imports
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
+import '../css/interface.css';
 
 // encryption packages
 import { JSEncrypt } from "jsencrypt";
+import { padding } from "@mui/system";
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+
 var CryptoJS = require("crypto-js");
 var RandomString = require("randomstring");
 var FileSaver = require('file-saver');
@@ -278,32 +282,37 @@ function Interface() {
 
   return (
     <>
-    <div>
-      <div>
+    <div className="interface">
+      <div style={{padding:"2rem"}}>
         <div text="container" className="text-center my-3">
           <h3>Sent files</h3>
         </div>
+        <SentFiles sentFiles1={sentFiles1} sentFiles2={sentFiles2} privateKey={privateKey1}/>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-around",
-            marginBottom: "2em",
+            justifyContent: "space-between",
+            marginBottom: "3em",
+            marginTop:"3rem"
           }}
         >
-          <div>
+          <div style={{boxShadow: "0 -2px 10px rgba(0, 0, 0, 1)" ,padding:"2em", borderRadius:"10px", background:"#181818"}}>
             <Avatar {...stringAvatar(`${name1}`)} />
             <h4 style={{ textAlign: "center" }}> {name1} </h4>
             <h5 style={{ textAlign: "center" }}> {sender} </h5>
           </div>
-          <SentFiles sentFiles1={sentFiles1} sentFiles2={sentFiles2} privateKey={privateKey1}/>
-          <div>
+
+          <CompareArrowsIcon sx={{fontSize: 100}}/>
+
+          <div style={{boxShadow: "0 -2px 10px rgba(0, 0, 0, 1)" ,padding:"2em", borderRadius:"10px", background:"#181818"}}>
             <Avatar {...stringAvatar(`${name2}`)} />
             <h4 style={{ textAlign: "center" }}> {name2} </h4>
             <h5 style={{ textAlign: "center" }}> {receiver} </h5>
           </div>
         </div>
-        <div className="container text-center">
+
+        <div className="container text-center" style={{marginBottom:"5em"}}>
           <input type="file" onChange={captureFile}/>
           <Button
             size="large"
@@ -315,13 +324,15 @@ function Interface() {
             Send file
           </Button>
         </div>
+
         <div
           text="container"
           className="text-center"
-          style={{ marginTop: "2em" }}
+          style={{ marginTop: "2em"}}
         >
           <h3>Received files</h3>
         </div>
+
         <div style={{ marginLeft: "auto", marginRight: "auto", width: "40%" }}>
           {" "}
           <ReceivedFiles receivedFiles1={receivedFiles1} receivedFiles2={receivedFiles2} privateKey={privateKey1}/>

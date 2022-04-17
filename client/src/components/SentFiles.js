@@ -2,6 +2,7 @@
 import React from "react";
 
 // mui imports
+
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Divider from "@mui/material/Divider";
@@ -10,7 +11,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 import { Button } from "@mui/material";
-
+import "../css/scrollbar.css"
 // file imports
 import ipfs from "../utils/ipfs";
 var CryptoJS = require("crypto-js");
@@ -69,15 +70,16 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
         justifyContent: "center",
         alignItems: "center",
         minWidth: "40%",
+        textAlign:"center"
       }}
     >
       <List
         sx={{
           width: "100%",
           maxWidth: 700,
-          bgcolor: "background.paper",
           overflow: "auto",
-          maxHeight: 350,
+          maxHeight: 200,
+          
         }}
       >
         {fileAll.length > 0 ?
@@ -101,7 +103,7 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
               </>
             )
           })
-        : "No files sent"}
+        : <div>No files sent</div>}
       </List>
     </div>
   );
