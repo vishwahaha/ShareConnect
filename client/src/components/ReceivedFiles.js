@@ -11,8 +11,10 @@ import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 import { Button } from "@mui/material";
 import "../css/scrollbar.css"
+
 // file imports
 import ipfs from "../utils/ipfs";
+import {convertWordArrayToUint8Array, Utf8ArrayToStr} from '../utils/stringConversion';
 var CryptoJS = require("crypto-js");
 const quickEncrypt = require("quick-encrypt");
 var FileSaver = require('file-saver');
@@ -38,13 +40,15 @@ export default function ReceivedFiles({receivedFiles1, receivedFiles2, privateKe
   }, [receivedFiles1, receivedFiles2])
 
   const download = async(index) => {
+    var AESkey = quickEncrypt.decrypt(fileAll[index].receiverEncryptedAESKey, privateKey);
     const chunks = [];
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
       chunks.push(...chunk);
     }
-    let buf = new Buffer.from(chunks)
-    var blob=new Blob([buf],{type:"application/octet-stream;"});
-    FileSaver.saveAs(blob,fileAll[index].fileName);
+    var decrypted = CryptoJS.AES.decrypt(Utf8ArrayToStr(chunks), AESkey);
+    var uint8array = convertWordArrayToUint8Array(decrypted);
+    var blob=new Blob([uint8array],{type:"application/octet-stream;"});
+    FileSaver.saveAs(blob, fileAll[index].fileName);
   }
 
 

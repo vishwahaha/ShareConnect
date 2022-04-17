@@ -58,11 +58,8 @@ const SignUp = () => {
   useEffect(async () => {
     try {
       const userAddress = await check_login();
-      console.log(userAddress);
       if (userAddress != 0) {
         navigate("/dashboard", { replace: true });
-      } else {
-        console.log("account doesn't exist");
       }
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
@@ -100,9 +97,6 @@ const SignUp = () => {
     if (userAddress == 0) {
       // account doesn't exist on blockchain
       let keys = quickEncrypt.generate(2048);
-      console.log(keys);
-      console.log(keys.public);
-      console.log(keys.private);
       await userStorageContract.methods
         .createUser(name, keys.public, keys.private)
         .send({
@@ -117,7 +111,6 @@ const SignUp = () => {
           setMessage(
             "You have registered successfully, redirecting to dashboard ..."
           );
-          console.log(message);
         })
         .catch((err) => {
           console.log(err);

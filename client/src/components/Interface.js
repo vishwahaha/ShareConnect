@@ -84,8 +84,6 @@ function Interface() {
       );
       setShareChannel(shareChannelContract);
       const users = await shareChannelContract.methods.getChannelUsers().call({from: accounts[0]})
-      console.log(users['0']);
-      console.log(users['1']);
       if(accounts[0] == users['0']) {
         setSender(users['0']);
         setReceiver(users['1']);
@@ -222,37 +220,17 @@ function Interface() {
     event.preventDefault();
     window.file = event.target.files[0];
     setFileName(window.file.name)
-    console.log(window.file)
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(window.file);
     reader.onloadend = () => {
-      // const AESkey = RandomString.generate(8);
-      setWordArray(CryptoJS.lib.WordArray.create(reader.result));           // Convert: ArrayBuffer -> WordArray
-      console.log(wordArray)
-      // const wordArray = CryptoJS.lib.WordArray.create(reader.result);
-      // const encrypted = CryptoJS.AES.encrypt(wordArray, AESkey).toString();        // Encryption: I: WordArray -> O: -> Base64 encoded string (OpenSSL-format)
-      // console.log(encrypted)
-      // var decrypted = CryptoJS.AES.decrypt(encrypted, AESkey);               // Decryption: I: Base64 encoded string (OpenSSL-format) -> O: WordArray
-      // console.log("decrypted wordArray-------------", decrypted)
-      // var uint8array = convertWordArrayToUint8Array(decrypted);
-      // console.log("decrypted uint8array-------------", uint8array)
-      // var blob=new Blob([uint8array],{type:"application/octet-stream;"});
-      // FileSaver.saveAs(blob, window.file.name);
+      setWordArray(CryptoJS.lib.WordArray.create(reader.result));
     }
   };
 
-  // const convertToBuffer = async reader => {
-  //   const buffer = await Buffer.from(reader.result);
-  //   setBuffer(buffer)
-  // };
-
   const shareFile = async(e) => {
     e.preventDefault();
-    // try { 
       const AESkey = RandomString.generate(8);
-      console.log(AESkey);
       const encrypted = CryptoJS.AES.encrypt(wordArray, AESkey).toString();
-      console.log(encrypted)
       var quickEncryptSender = quickEncrypt.encrypt(AESkey, publicKey1);
       var quickEncryptReceiver =  quickEncrypt.encrypt(AESkey, publicKey2);
       const ipfsData = await ipfs.add(encrypted);

@@ -123,7 +123,6 @@ const ShareGlobally = ({refresh, setRefresh}) => {
         _ipfsHash: ipfsHash
       })
       .then((res) => {
-        console.log(res);
         setRefresh(!refresh);
         handleClose();
       })

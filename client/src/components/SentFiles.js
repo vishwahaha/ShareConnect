@@ -12,8 +12,10 @@ import Typography from "@mui/material/Typography";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 import { Button } from "@mui/material";
 import "../css/scrollbar.css"
+
 // file imports
 import ipfs from "../utils/ipfs";
+import {convertWordArrayToUint8Array, Utf8ArrayToStr} from '../utils/stringConversion';
 var CryptoJS = require("crypto-js");
 const quickEncrypt = require("quick-encrypt");
 var FileSaver = require('file-saver');
@@ -38,28 +40,18 @@ export default function SentFiles({sentFiles1, sentFiles2, privateKey}) {
     }
   }, [sentFiles1, sentFiles2])
 
-  function convertWordArrayToUint8Array(wordArray) {
-    var arrayOfWords = wordArray.hasOwnProperty("words") ? wordArray.words : [];
-    var length = wordArray.hasOwnProperty("sigBytes") ? wordArray.sigBytes : arrayOfWords.length * 4;
-    var uInt8Array = new Uint8Array(length), index=0, word, i;
-    for (i=0; i<length; i++) {
-        word = arrayOfWords[i];
-        uInt8Array[index++] = word >> 24;
-        uInt8Array[index++] = (word >> 16) & 0xff;
-        uInt8Array[index++] = (word >> 8) & 0xff;
-        uInt8Array[index++] = word & 0xff;
-    }
-    return uInt8Array;
-  }
 
   const download = async(index) => {
     var AESkey = quickEncrypt.decrypt(fileAll[index].senderEncryptedAESKey, privateKey);
-    console.log(AESkey)
-    console.log(fileAll[index].ipfsHash)
     const chunks = [];
+    // const MAXLEN = 1516288;
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
       chunks.push(...chunk);
     }
+    var decrypted = CryptoJS.AES.decrypt(Utf8ArrayToStr(chunks), AESkey);
+    var uint8array = convertWordArrayToUint8Array(decrypted);
+    var blob=new Blob([uint8array],{type:"application/octet-stream;"});
+    FileSaver.saveAs(blob, fileAll[index].fileName);
   }
 
 
