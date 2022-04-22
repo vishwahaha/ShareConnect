@@ -17,7 +17,34 @@ import getWeb3 from "../utils/getWeb3";
 import ipfs from "../utils/ipfs";
 
 // mui imports
-import { Avatar, Button, CardContent } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Divider from "@mui/material/Divider";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Typography from "@mui/material/Typography";
+import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+// material
+import {
+  Card,
+  Table,
+  Stack,
+  Checkbox,
+  TableRow,
+  TableBody,
+  TableCell,
+  Container,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
+// components
+import Scrollbar from './tools/Scrollbar';
+import ListHead from "./tools/ListHead";
+
+
 
 var FileSaver = require('file-saver');
 
@@ -39,7 +66,11 @@ const Dashboard = () => {
   const [globalContract, setGlobalContract] = React.useState(null);
   const [globalFiles, setGlobalFiles] = React.useState(null);
   const [fileAll, setFileAll] = React.useState([]);
-  const [show, setShow] = React.useState(false);
+  const [refresh, setRefresh] = React.useState([]);
+  const [page, setPage] = useState(0);
+  const [emptyRows, setEmptyrows] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
+  const [filterName, setFilterName] = useState('');
 
   React.useEffect(async() => {
     await getWeb3()
@@ -89,45 +120,67 @@ const Dashboard = () => {
     }
   }, [userContract])
 
-  const getFiles = async(e) => {
-    e.preventDefault();
-    const files = await globalContract.methods.getAllFiles().call({from: accounts[0]});
-    setGlobalFiles(files);
-    const allfiles = [];
-    for(var i = 0; i < files[0].length; i++) {
-      let file = {
-        fileName: files[0][i],
-        ipfsHash: files[1][i],
-        sender: files[2][i]
+
+  React.useEffect(async() => {
+    if(globalContract) {
+      const files = await globalContract.methods.getAllFiles().call({from: accounts[0]});
+      setGlobalFiles(files);
+      const allfiles = [];
+      for(var i = 0; i < files[0].length; i++) {
+        let file = {
+          fileName: files[0][i],
+          ipfsHash: files[1][i],
+          sender: files[2][i]
+        }
+        allfiles.push(file)
       }
-      allfiles.push(file)
+      setFileAll(allfiles);
     }
-    setFileAll(allfiles);
-    console.log(fileAll);
-    setShow(true);
-  }
+  }, [globalContract, refresh])
+
 
   const download = async(index) => {
     const chunks = [];
     for await (const chunk of ipfs.cat(fileAll[index].ipfsHash)) {
       chunks.push(...chunk);
     }
-    let buf = new Buffer.from(chunks)
+    let buf = new Buffer.from(chunks);
     var blob=new Blob([buf],{type:"application/octet-stream;"});
     FileSaver.saveAs(blob,fileAll[index].fileName);
   }
-
-  console.log(name)
+  const TABLE_HEAD = [
+  { id: 'name', label: 'Name', alignRight: false },
+  { id: '' },
+];
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   return (
-    <>
+    <div className="dashboard-container">
       <div className="dashboard">
         <SharePersonally />
         <div>
           {name ?
-            <Avatar {...stringAvatar(name)} className="avatar" />
+            <Avatar style={{
+              width: 150,
+              height: 150,
+              fontSize: 50,
+              margin: "auto",
+              marginBottom: 10
+            }} {...stringAvatar(name)} className="avatar" />
               : 
-            <Avatar {...stringAvatar("User")} className="avatar" />
+            <Avatar style={{
+              width: 150,
+              height: 150,
+              fontSize: 50,
+              margin: "auto",
+              marginBottom: 10
+            }} {...stringAvatar("User")} className="avatar" />
           }
           <h4 style={{ textAlign: "center" }}>
             <strong>{name}</strong>
@@ -136,32 +189,65 @@ const Dashboard = () => {
             <strong>{accounts[0]}</strong>
           </h5>
         </div>
-        <ShareGlobally />
+        <ShareGlobally refresh={refresh} setRefresh={setRefresh}/>
       </div>
-      <div>
-        <Button onClick={getFiles}>Check</Button>
-        {show && fileAll.length > 0 ?
-          fileAll.map((file, index) => {
-            return (
-              <>
-                <li key={index}>
-                  <div>
-                    {file.fileName}
-                  </div>
-                  <div>
-                    {file.ipfsHash}
-                  </div>
-                  <div>
-                    {file.sender}
-                  </div>
-                  <Button onClick={() => download(index)}>Download File</Button>
-                </li>
-              </>
-            )
-          })
-        : null}
-      </div>
-    </>
+      <Card className="fileTable">
+         <h4 style={{ textAlign: "center" }}>
+            <strong>Files shared</strong>
+          </h4>
+          
+          {/* <Scrollbar> */}
+            <TableContainer sx={{ minWidth: 200 }}>
+              <Table>
+                <ListHead
+                  headLabel={TABLE_HEAD}
+                  rowCount={fileAll.length}
+                />
+                <TableBody>
+                  {fileAll.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((file,index) => {
+
+                    return (
+                      <TableRow
+                        hover
+                        tabIndex={-1}
+                      >
+                        <TableCell component="th" scope="row" padding="none">
+                          <Stack direction="row" alignItems="center" spacing={2}>
+                            <FileCopyOutlinedIcon sx={{color:"#fff"}}/>
+                            <Typography variant="subtitle2" noWrap color="#fff">
+                              {file.fileName}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+        
+                        
+
+                        <TableCell align="right">
+                          <React.Fragment>
+                          <Button onClick={() => download(index)}>Download</Button>
+                        </React.Fragment>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          {/* </Scrollbar> */}
+
+          <TablePagination
+            rowsPerPageOptions={[7, 10, 25]}
+            component="div"
+            count={fileAll.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            style={{color:"white", fill: "white"}}
+          />
+        </Card>
+      
+    </div>
   );
 };
 

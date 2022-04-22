@@ -20,11 +20,10 @@ import UserAccount from "../contracts/UserAccount.json";
 import GlobalShare from "../contracts/GlobalShare.json";
 import ipfs from "../utils/ipfs";
 
-const ShareGlobally = () => {
+const ShareGlobally = ({refresh, setRefresh}) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
-    console.log("hello")
     setOpen(true);
   };
 
@@ -124,7 +123,8 @@ const ShareGlobally = () => {
         _ipfsHash: ipfsHash
       })
       .then((res) => {
-        console.log(res)
+        setRefresh(!refresh);
+        handleClose();
       })
       .catch((e) => {
         console.log(e)
@@ -146,7 +146,7 @@ const ShareGlobally = () => {
         <Button variant="contained" onClick={handleClickOpen}>
           Send Globally
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} style= {{backgroundColor: '#181818',color: 'white'}}>
           <DialogTitle>Send Globally</DialogTitle>
           <DialogContent>
             <DialogContentText>

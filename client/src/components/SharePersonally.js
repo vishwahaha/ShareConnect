@@ -57,17 +57,14 @@ const SharePersonally = () => {
       FileShare.abi,
       dn2 && dn2.address
     )
-    // console.log(fileShareContract);
     const userAddress = await userStorageContract.methods
       .getUserFromAddress(metaaddress)
       .call({ from: accounts[0] });
     if (userAddress == 0) {
-      console.log("user doesn't exist")
       setError(true)
-      setErrorText("Sorry! The user doesn't exist on our website")
+      setErrorText("The user doesn't exist on our website")
     }
     else {
-      console.log("user exists")
       setError(false)
       setErrorText("")
 
@@ -78,14 +75,11 @@ const SharePersonally = () => {
       const channel2 = await fileShareContract.methods
         .getChannel(metaaddress, accounts[0])
         .call({ from: accounts[0] });
-      
-        console.log('channels--', channel1, channel2)
 
       if (channel1 == 0 && channel2 == 0) {
         await fileShareContract.methods
           .createChannel(accounts[0], metaaddress)
           .send({ from: accounts[0] });
-        console.log("created channel")
         //Get the new channel now.
         const channel1 = await fileShareContract.methods
         .getChannel(accounts[0], metaaddress)
@@ -100,24 +94,19 @@ const SharePersonally = () => {
           ShareChannel.abi,
           channelAddress
         );
-        console.log(shareChannelContract);
         navigate(`/channel/${channelAddress}`, { replace: true });
       }
       else {
-        console.log('Channel already exists!', channel1, channel2)
         let channelAddress = channel1 == 0 ? channel2 : channel1;
         const shareChannelContract = new web3.eth.Contract(
           ShareChannel.abi,
           channelAddress
         );
-        console.log(shareChannelContract);
         navigate(`/channel/${channelAddress}`, { replace: true });
       }
     }
   }
-  const showError = () => {
-    console.log("error")
-  }
+
   const checkValidity = () => {
     try {
       const address = web3.utils.toChecksumAddress(metaaddress)
@@ -137,7 +126,7 @@ const SharePersonally = () => {
         <Button variant="contained" onClick={handleClickOpen}>
           Send Personally
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} style= {{backgroundColor: '#181818',color: 'white'}}>
           <DialogTitle>Send File Personally</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -153,7 +142,6 @@ const SharePersonally = () => {
               variant="standard"
               onChange={e => {
                 setMetaaddress(e.target.value)
-                console.log(metaaddress)
               }}
             />
             {error &&

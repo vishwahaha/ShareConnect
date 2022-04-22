@@ -17,6 +17,18 @@ import ReceivedFiles from "./ReceivedFiles";
 // mui imports
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
+import '../css/interface.css';
+
+// encryption packages
+import { JSEncrypt } from "jsencrypt";
+import { padding } from "@mui/system";
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { Typography, ListItem, ListItemAvatar, ListItemText, } from "@mui/material";
+
+var CryptoJS = require("crypto-js");
+var RandomString = require("randomstring");
+var FileSaver = require('file-saver');
+const quickEncrypt = require("quick-encrypt");
 
 function Interface() {
 
@@ -28,15 +40,18 @@ function Interface() {
   const [publicKey1, setPublicKey1] = React.useState("");
   const [publicKey2, setPublicKey2] = React.useState("");
   const [privateKey1, setPrivateKey1] = React.useState("");
-  const [privateKey2, setPrivateKey2] = React.useState("");
-  const [sender, setSender] = React.useState("");
-  const [receiver, setReceiver] = React.useState("");
+  const [sender, setSender] = React.useState(null);
+  const [receiver, setReceiver] = React.useState(null);
   const [fileName, setFileName] = React.useState("");
   const [buffer, setBuffer] = React.useState("");
   const [shareChannel, setShareChannel] = React.useState(null);
   const [acc, setAcc] = React.useState([]);
-  const [sentFiles, setSentFiles] = React.useState([]);
-  const [receivedFiles, setReceivedFiles] = React.useState([]);
+  const [sentFiles1, setSentFiles1] = React.useState({});
+  const [sentFiles2, setSentFiles2] = React.useState({});
+  const [receivedFiles1, setReceivedFiles1] = React.useState({});
+  const [receivedFiles2, setReceivedFiles2] = React.useState({});
+  const [wordArray, setWordArray] = React.useState([]);
+  // const [encrypted, setEncrypted] = React.useState("");
 
   let navigate = useNavigate();
   let { id } = useParams();
@@ -48,14 +63,14 @@ function Interface() {
     }
   }, []);
 
-  React.useEffect(async() => {
+  React.useEffect(async () => {
     await getWeb3()
-    .then(res => setWeb3(res));
+      .then(res => setWeb3(res));
     // Use web3 to get the user's accounts.
   }, [])
-  
-  React.useEffect(async() => {
-    if(web3){
+
+  React.useEffect(async () => {
+    if (web3) {
       const accounts = await web3.eth.getAccounts();
       setAcc(accounts);
       const networkId = await web3.eth.net.getId();
@@ -69,133 +84,124 @@ function Interface() {
         id
       );
       setShareChannel(shareChannelContract);
-      const users = await shareChannelContract.methods.getChannelUsers().call({from: accounts[0]})
-      if(accounts[0] == users['0']) {
+      const users = await shareChannelContract.methods.getChannelUsers().call({ from: accounts[0] })
+      if (accounts[0] == users['0']) {
         setSender(users['0']);
         setReceiver(users['1']);
-        const sent_files = await shareChannelContract.methods.getSentFiles(users['0']).call({from: users['0']});
-        setSentFiles(sent_files);
-        const received_files = await shareChannelContract.methods.getReceivedFiles(users['1']).call({from: users['0']});
-        setReceivedFiles(received_files);
+        const sent1 = await shareChannelContract.methods.getSentFiles1(users['0'], users['1']).call({ from: users['0'] });
+        const sent2 = await shareChannelContract.methods.getSentFiles2(users['0'], users['1']).call({ from: users['0'] });
+        const received1 = await shareChannelContract.methods.getSentFiles1(users['1'], users['0']).call({ from: users['0'] });
+        const received2 = await shareChannelContract.methods.getSentFiles2(users['1'], users['0']).call({ from: users['0'] });
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
+        setReceivedFiles1(received1);
+        setReceivedFiles2(received2);
         await userStorageContract.methods
-        .getUser()
-        .call({ from: users['0'] })
-        .then(async (res)=> {
-          setUserContract1(new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          ));
-          const uc1 = new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          )
-          await uc1.methods.name().call({from:users['0']})
-          .then(res => {
-            setName1(res)
-          });
-          await uc1.methods.publicKey().call({from:users['0']})
-          .then(res => {
-            setPublicKey1(res)
-          });
-          await uc1.methods.getPrivateKey().call({from:users['0']})
-          .then(res => {
-            setPrivateKey1(res)
-          });
-        })
+          .getUser()
+          .call({ from: users['0'] })
+          .then(async (res) => {
+            setUserContract1(new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            ));
+            const uc1 = new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            )
+            await uc1.methods.name().call({ from: users['0'] })
+              .then(res => {
+                setName1(res)
+              });
+            await uc1.methods.publicKey().call({ from: users['0'] })
+              .then(res => {
+                setPublicKey1(res)
+              });
+            await uc1.methods.getPrivateKey().call({ from: users['0'] })
+              .then(res => {
+                setPrivateKey1(res)
+              });
+          })
         await userStorageContract.methods
-        .getUser()
-        .call({ from: users['1'] })
-        .then(async (res)=> {
-          setUserContract2(new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          ));
-          const uc2 = new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          )
-          await uc2.methods.name().call({from:users['1']})
-          .then(res => {
-            setName2(res)
-          });
-          await uc2.methods.publicKey().call({from:users['1']})
-          .then(res => {
-            setPublicKey2(res)
-          });
-          await uc2.methods.getPrivateKey().call({from:users['1']})
-          .then(res => {
-            setPrivateKey2(res)
-          });
-        })
-      }else{
+          .getUser()
+          .call({ from: users['1'] })
+          .then(async (res) => {
+            setUserContract2(new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            ));
+            const uc2 = new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            )
+            await uc2.methods.name().call({ from: users['1'] })
+              .then(res => {
+                setName2(res)
+              });
+            await uc2.methods.publicKey().call({ from: users['1'] })
+              .then(res => {
+                setPublicKey2(res)
+              });
+          })
+      } else {
         setSender(users['1']);
         setReceiver(users['0']);
-        const sent_files = await shareChannelContract.methods.getSentFiles(users['1']).call({from: users['1']});
-        setSentFiles(sent_files);
-        const received_files = await shareChannelContract.methods.getReceivedFiles(users['0']).call({from: users['1']});
-        setReceivedFiles(received_files);
+        const sent1 = await shareChannelContract.methods.getSentFiles1(users['1'], users['0']).call({ from: users['1'] });
+        const sent2 = await shareChannelContract.methods.getSentFiles2(users['1'], users['0']).call({ from: users['1'] });
+        const received1 = await shareChannelContract.methods.getSentFiles1(users['0'], users['1']).call({ from: users['1'] });
+        const received2 = await shareChannelContract.methods.getSentFiles2(users['0'], users['1']).call({ from: users['1'] });
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
+        setReceivedFiles1(received1);
+        setReceivedFiles2(received2);
         await userStorageContract.methods
-        .getUser()
-        .call({ from: users['1'] })
-        .then(async (res)=> {
-          setUserContract1(new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          ));
-          const uc1 = new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          )
-          await uc1.methods.name().call({from:users['1']})
-          .then(res => {
-            setName1(res)
-          });
-          await uc1.methods.publicKey().call({from:users['1']})
-          .then(res => {
-            setPublicKey1(res)
-          });
-          await uc1.methods.getPrivateKey().call({from:users['1']})
-          .then(res => {
-            setPrivateKey1(res)
-          });
-        })
+          .getUser()
+          .call({ from: users['1'] })
+          .then(async (res) => {
+            setUserContract1(new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            ));
+            const uc1 = new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            )
+            await uc1.methods.name().call({ from: users['1'] })
+              .then(res => {
+                setName1(res)
+              });
+            await uc1.methods.publicKey().call({ from: users['1'] })
+              .then(res => {
+                setPublicKey1(res)
+              });
+            await uc1.methods.getPrivateKey().call({ from: users['1'] })
+              .then(res => {
+                setPrivateKey1(res)
+              });
+          })
         await userStorageContract.methods
-        .getUser()
-        .call({ from: users['0'] })
-        .then(async (res)=> {
-          setUserContract2(new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          ));
-          const uc2 = new web3.eth.Contract(
-            UserAccount.abi,
-            res
-          )
-          await uc2.methods.name().call({from:users['0']})
-          .then(res => {
-            setName2(res)
-          });
-          await uc2.methods.publicKey().call({from:users['0']})
-          .then(res => {
-            setPublicKey2(res)
-          });
-          await uc2.methods.getPrivateKey().call({from:users['0']})
-          .then(res => {
-            setPrivateKey2(res)
-          });
-        })
+          .getUser()
+          .call({ from: users['0'] })
+          .then(async (res) => {
+            setUserContract2(new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            ));
+            const uc2 = new web3.eth.Contract(
+              UserAccount.abi,
+              res
+            )
+            await uc2.methods.name().call({ from: users['0'] })
+              .then(res => {
+                setName2(res)
+              });
+            await uc2.methods.publicKey().call({ from: users['0'] })
+              .then(res => {
+                setPublicKey2(res)
+              });
+          })
       }
-      // console.log(userB)
-  }}, [web3]);
-
-  // const genPassPhrase = keyLength => {
-  //   var randomstring = "";
-  //   for (var i = 0; i < keyLength; i++) {
-  //     var rnum = Math.floor(Math.random() * chars.length);
-  //     randomstring += chars.substring(rnum, rnum + 1);
-  //   }
-  //   return randomstring;
-  // };
+    }
+  }, [web3]);
 
   const captureFile = event => {
     event.stopPropagation();
@@ -204,92 +210,124 @@ function Interface() {
     setFileName(window.file.name)
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(window.file);
-    reader.onloadend = () => convertToBuffer(reader);
-  };
-
-  const convertToBuffer = async reader => {
-    const buffer = await Buffer.from(reader.result);
-    this.setState({ buffer: buffer });
-  };
-
-  const shareFile = async(e) => {
-    e.preventDefault();
-    try {
-      const ipfsData = await ipfs.add(buffer);
-      const ipfsHash = ipfsData.path;
-      await shareChannel.methods
-      .sendFile(
-        fileName,
-        ipfsHash
-      )
-      .send({
-        from: acc[0],
-        _fileName: fileName,
-        _ipfsHash: ipfsHash
-      })
-      .then((res) => {
-        console.log(res)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-    } catch (e) {
-      console.log(e);
+    reader.onloadend = () => {
+      setWordArray(CryptoJS.lib.WordArray.create(reader.result));
     }
   };
 
+  const shareFile = async (e) => {
+    e.preventDefault();
+    const AESkey = RandomString.generate(8);
+    const encrypted = CryptoJS.AES.encrypt(wordArray, AESkey).toString();
+    var quickEncryptSender = quickEncrypt.encrypt(AESkey, publicKey1);
+    var quickEncryptReceiver = quickEncrypt.encrypt(AESkey, publicKey2);
+    const ipfsData = await ipfs.add(encrypted);
+    const ipfsHash = ipfsData.path;
+    setFileName("");
+    await shareChannel.methods
+      .sendFile(
+        fileName,
+        ipfsHash,
+        quickEncryptSender,
+        quickEncryptReceiver,
+        receiver
+      ).send({
+        from: sender,
+        _fileName: fileName,
+        _ipfsHash: ipfsHash,
+        _quickEncryptSender: quickEncryptSender,
+        _quickEncryptReceiver: quickEncryptReceiver,
+        _receiver: receiver
+      }).then(async (res) => {
+        const sent1 = await shareChannel.methods.getSentFiles1(sender, receiver).call({ from: sender });
+        const sent2 = await shareChannel.methods.getSentFiles2(sender, receiver).call({ from: sender });
+        setSentFiles1(sent1);
+        setSentFiles2(sent2);
+      })
+  };
+
+
   return (
     <>
-    <div>
-      <div>
-        <div text="container" className="text-center my-3">
-          <h3>Sent files</h3>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-around",
-            marginBottom: "2em",
-          }}
-        >
-          <div>
-            <Avatar {...stringAvatar(`${name1}`)} />
-            <h4 style={{ textAlign: "center" }}> {name1} </h4>
-            <h5 style={{ textAlign: "center" }}> {sender} </h5>
-          </div>
-          <SentFiles />
-          <div>
-            <Avatar {...stringAvatar(`${name2}`)} />
-            <h4 style={{ textAlign: "center" }}> {name2} </h4>
-            <h5 style={{ textAlign: "center" }}> {receiver} </h5>
-          </div>
-        </div>
-        <div className="container text-center">
-          <input type="file" onChange={captureFile}/>
-          <Button
-            size="large"
-            variant="contained"
-            color="success"
-            component="label"
-            onClick={shareFile}
+      <div className="interface">
+        <div style={{ padding: "2rem" }}>
+          <SentFiles sentFiles1={sentFiles1} sentFiles2={sentFiles2} privateKey={privateKey1} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "3em",
+              marginTop: "3rem"
+            }}
           >
-            Send file
-          </Button>
-        </div>
-        <div
-          text="container"
-          className="text-center"
-          style={{ marginTop: "2em" }}
-        >
-          <h3>Received files</h3>
-        </div>
-        <div style={{ marginLeft: "auto", marginRight: "auto", width: "40%" }}>
-          {" "}
-          <ReceivedFiles />
+            <div style={{ boxShadow: "0 -2px 10px rgba(0, 0, 0, 1)", borderRadius: "10px", background: "#181818" }}>
+            <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar style={{ width: 60, height: 60, }} {...stringAvatar(`${name1}`)}/>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{ display: 'inline' }}
+                        component="span"
+                        variant="h4"
+                      >
+                        {name1}
+                      </Typography>
+                      <Typography style={{ textAlign: "center" }}> {sender} </Typography>
+                    </React.Fragment>
+                  }
+                  sx={{ ml: 1, }}
+                />
+                </ListItem>
+            </div>
+            <label for="file">
+              <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+                <CompareArrowsIcon sx={{ fontSize: 60 }} style={{cursor: "pointer"}}/>
+                <input type="file" id="file" hidden onChange={captureFile} />
+                <h6 style={{wordBreak: "break-word", textAlign: "center"}}>{fileName}</h6>
+              </div>
+            </label>
+            <div style={{ boxShadow: "0 -2px 10px rgba(0, 0, 0, 1)",  borderRadius: "10px", background: "#181818" }}>
+              <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar style={{ width: 60, height: 60, }} {...stringAvatar(`${name2}`)}/>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{ display: 'inline' }}
+                        component="span"
+                        variant="h4"
+                      >
+                        {name2}
+                      </Typography>
+                      <Typography style={{ textAlign: "center" }}> {receiver} </Typography>
+                    </React.Fragment>
+                  }
+                  sx={{ ml: 1, }}
+                />
+                </ListItem>
+            </div>
+          </div>
+
+          <div className="container text-center" style={{ marginBottom: "5em" }}>
+            <Button
+              size="large"
+              variant="contained"
+              color="success"
+              component="label"
+              onClick={shareFile}
+            >
+              Send file
+            </Button>
+          </div>
+            <ReceivedFiles receivedFiles1={receivedFiles1} receivedFiles2={receivedFiles2} privateKey={privateKey1} />
         </div>
       </div>
-    </div>
     </>
   );
 }

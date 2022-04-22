@@ -2,9 +2,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 50vh;
 }
 
 .avatar {
   margin-bottom: 1em !important;
+}
+.fileTable{
+  width: 80vw;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 1) !important ;
+  margin : auto;
+  padding: 3rem;
+  margin-bottom: 3rem !important;
+  background: #181818 !important;
+  color: white !important;
+}
+.dashboard-container{
+  background: #161616;  
+  color: white ; 
+  padding: "1em" !important;
+  min-height:100vh !important;
 }
